@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>河畔小鎮</title>
+<style>
+:root{--ink:#1d3a35;--cel:#dde7df;--amb:#d39a2f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#a9c3b6;color:var(--ink);overscroll-behavior:none;font-family:"Noto Serif TC","Source Han Serif TC","Songti TC","PMingLiU",serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.pn{background:rgba(221,231,223,.92);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(29,58,53,.25);border-radius:12px}
+button,a{font:inherit;color:var(--ink)}
+.b{font-size:.85rem;padding:7px 11px;cursor:pointer;white-space:nowrap;text-decoration:none;display:flex;align-items:center;border:1px solid rgba(29,58,53,.25)}
+#top{position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:6px;pointer-events:none}
+#top .row{display:flex;gap:6px;align-items:stretch}
+#top .pn{pointer-events:auto}
+#hud{flex:1;display:flex;flex-direction:column;justify-content:center;padding:4px 10px;line-height:1.3;min-width:0}
+#hud b{font-size:1.05rem;letter-spacing:.14em}
+#clk{font-size:.78rem;opacity:.8}
+#stats{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:5px 12px;font-size:.82rem}
+#stats b{font-size:1rem}
+#bReset{padding:3px 9px;font-size:.78rem;background:transparent;border-radius:8px;cursor:pointer;border:1px solid rgba(29,58,53,.3)}
+#zoom{position:fixed;right:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px}
+#zoom .b{justify-content:center;width:40px;height:40px;font-size:1.1rem}
+#msg{position:fixed;left:50%;bottom:calc(142px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:8px 14px;font-size:.88rem;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center}
+#msg.show{opacity:1}
+#sub{position:fixed;left:8px;right:8px;bottom:calc(76px + env(safe-area-inset-bottom,0px));display:none;gap:6px;padding:6px;overflow-x:auto}
+.ch{flex:0 0 auto;background:transparent;border:1px solid rgba(29,58,53,.25);border-radius:9px;padding:5px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+.ch small{font-size:.7rem;opacity:.75}
+.ch.on{background:var(--amb);border-color:#8a5f12;color:#2a1d05}
+#card{position:fixed;left:8px;right:8px;bottom:calc(76px + env(safe-area-inset-bottom,0px));display:none;flex-direction:column;gap:8px;padding:10px 12px}
+#card .rw{display:flex;gap:8px}
+#card button{flex:1;padding:8px;border-radius:9px;border:1px solid rgba(29,58,53,.3);background:transparent;cursor:pointer}
+#cardDel{background:var(--amb)!important;border-color:#8a5f12!important}
+#bar{position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));display:flex;gap:6px;padding:6px;overflow-x:auto}
+.tb{flex:1 0 58px;background:transparent;border:1px solid rgba(29,58,53,.2);border-radius:9px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer}
+.tb small{font-size:.7rem;opacity:.75;min-height:1em}
+.tb.on{background:var(--amb);border-color:#8a5f12;color:#2a1d05}
+#intro{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(29,58,53,.5);padding:20px}
+#intro .pn{max-width:340px;padding:20px}
+#intro h2{margin:0 0 6px;letter-spacing:.16em}
+#intro ol{padding-left:1.3em;line-height:1.9;margin:8px 0}
+#intro p{margin:6px 0;font-size:.88rem;opacity:.85;line-height:1.7}
+#go{width:100%;margin-top:10px;padding:10px;background:var(--amb);border:1px solid #8a5f12;border-radius:9px;font-size:1rem;cursor:pointer}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="top">
+  <div class="row">
+    <a class="pn b" href="index.html">← 題庫</a>
+    <div class="pn" id="hud"><b>河畔小鎮</b><span id="clk"></span></div>
+    <button class="pn b" id="bSpd" aria-label="遊戲速度">1×</button>
+    <button class="pn b" id="bPause">暫停</button>
+  </div>
+  <div class="pn" id="stats">
+    <span>居民 <b id="sPop">0</b></span><span>建築 <b id="sB">0</b></span><span>街道 <b id="sR">0</b></span><span>鎮庫 <b id="sM">0</b> 文</span>
+    <button id="bReset">重來</button>
+  </div>
+</div>
+<div id="zoom"><button class="pn b" id="zi" aria-label="放大">＋</button><button class="pn b" id="zo" aria-label="縮小">－</button><button class="pn b" id="zh" aria-label="回到小鎮">⌖</button></div>
+<div id="msg" class="pn"></div>
+<div id="sub" class="pn"></div>
+<div id="card" class="pn"><div id="cardT"></div><div class="rw"><button id="cardDel"></button><button id="cardX">關閉</button></div></div>
+<div id="bar" class="pn"></div>
+<div id="intro"><div class="pn">
+  <h2>河畔小鎮</h2>
+  <p>在河岸邊，一格一格把小鎮鋪起來。</p>
+  <ol><li>選「鋪路」，從河岸邊的碼頭拖出一條青石路。</li><li>選「民居」，點在路旁的空地，等它落成。</li><li>居民搬進來後，再蓋商鋪和作坊，賺取鎮庫。</li></ol>
+  <p>單指拖曳移動畫面（鋪路和拆除時改用兩指），兩指縮放。世界很大，右側的 ⌖ 可以隨時回到你的小鎮。進度會自動存在這支手機上。</p>
+  <button id="go">開始建造</button>
+</div></div>
+
+<script>
+(() => {
+"use strict";
+const N = 10000, RX = 5004, HW = 32, HH = 16, DOCK = { x: 5003, y: 5000 }, KEY = "town_save_v2", ROAD = 20;
+const D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+const CAT = {
+  house: [{ id: "h1", n: "民居", c: 80, h: 20, r: 13, w: ["#ece1c8", "#cdc0a1"], f: ["#7a928d", "#566b68", "#8aa39e"] }],
+  shop: [
+    { id: "s1", n: "雜貨鋪", c: 120, h: 24, r: 14, w: ["#dbb88f", "#b99671"], f: ["#d1604a", "#a23f2b", "#e07a63"], d: "lan", inc: 6 },
+    { id: "s2", n: "茶坊", c: 140, h: 24, r: 14, w: ["#d9c9a0", "#b8a77d"], f: ["#4f7b6b", "#3a5c50", "#62917f"], d: "flag", inc: 7 },
+    { id: "s3", n: "食肆", c: 160, h: 26, r: 14, w: ["#e4c9a4", "#c2a681"], f: ["#a8553a", "#85402b", "#bd6b4f"], d: "lan", inc: 8 },
+    { id: "s4", n: "布莊", c: 150, h: 24, r: 13, w: ["#e8dcc8", "#c9bb9f"], f: ["#3e5f8a", "#2f4a6c", "#5276a3"], d: "cloth", inc: 8 },
+    { id: "s5", n: "藥鋪", c: 170, h: 24, r: 14, w: ["#d8cdb3", "#b7ab8f"], f: ["#6a7f4f", "#52643c", "#7f9663"], d: "sign", inc: 9 },
+    { id: "s6", n: "酒樓", c: 260, h: 38, r: 16, w: ["#e2b58c", "#bf9168"], f: ["#b8452e", "#8f3320", "#cf5c43"], d: "lan2", inc: 15, bt: 30 }
+  ],
+  work: [
+    { id: "w1", n: "陶坊", c: 150, h: 22, r: 11, w: ["#bf9f7e", "#9c7f61"], f: ["#8a6650", "#684a38", "#9c7863"], d: "kiln", inc: 9 },
+    { id: "w2", n: "木作坊", c: 150, h: 22, r: 11, w: ["#c9ad82", "#a68b63"], f: ["#6f5a3f", "#54432e", "#836c4e"], d: "logs", inc: 9 },
+    { id: "w3", n: "織坊", c: 170, h: 22, r: 12, w: ["#e0d2b6", "#bfb094"], f: ["#8a5f7a", "#6c4960", "#a0768f"], d: "yarn", inc: 11 },
+    { id: "w4", n: "鐵鋪", c: 200, h: 22, r: 11, w: ["#a9a49a", "#878279"], f: ["#5b5f66", "#44474d", "#6e737b"], d: "anvil", inc: 14 },
+    { id: "w5", n: "釀酒坊", c: 220, h: 24, r: 12, w: ["#d3b891", "#b09670"], f: ["#7b5b3e", "#5e432d", "#8f6e4f"], d: "jars", inc: 16 }
+  ],
+  park: [
+    { id: "p1", n: "垂柳", c: 60, k: "willow", bt: 6 }, { id: "p2", n: "花圃", c: 50, k: "flower", bt: 6 },
+    { id: "p3", n: "池塘", c: 90, k: "pond", bt: 8 }, { id: "p4", n: "涼亭", c: 140, k: "pavilion", bt: 10 },
+    { id: "p5", n: "竹林", c: 70, k: "bamboo", bt: 6 }, { id: "p6", n: "假山", c: 110, k: "rock", bt: 8 }
+  ]
+};
+const TY = {}; Object.keys(CAT).forEach(c => CAT[c].forEach(v => { v.cat = c; TY[v.id] = v; }));
+const TOOLS = [["look", "探索"], ["road", "鋪路"], ["house", "民居"], ["shop", "商鋪"], ["work", "作坊"], ["park", "園景"], ["del", "拆除"]];
+const $ = s => document.querySelector(s);
+const cv = $("#cv"), cx = cv.getContext("2d");
+let roads = new Set(), bm = new Map(), conn = new Set(), CR = [], R = [];
+let S = { m: 2400, t: 120 }, speed = 1, paused = false, tool = "road", acc = 0, Z = 1, cam = { x: 0, y: 0 };
+let sel = { house: "h1", shop: "s1", work: "w1", park: "p1" };
+let hov = null, VW = 0, VH = 0, DPR = 1, introOpen = false, cardB = null;
+
+const K = (x, y) => y * N + x;
+const inW = (x, y) => x >= 0 && y >= 0 && x < N && y < N;
+const isW = (x, y) => x >= RX && x < RX + 2;
+const P = (x, y, z) => [(x - y) * HW, (x + y) * HH - (z || 0)];
+const hs = (x, y) => ((x * 73856093) ^ (y * 19349663)) >>> 0;
+const hr = () => (S.t / 15) % 24;
+const dark = h => (h >= 20 || h < 4) ? 1 : h >= 18 ? (h - 18) / 2 : h < 6 ? (6 - h) / 2 : 0;
+const pad = n => String(n).padStart(2, "0");
+const SH = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+const GR = ["#a6ba72", "#9db46b", "#abbf79"], WC = [];
+for (let i = 0; i < 8; i++) WC.push("hsl(197 42% " + (47 + i * .9) + "%)");
+
+// ===== 存檔（只存道路與建築，世界其他部分由程式生成） =====
+let sv = 0; const dirty = () => { clearTimeout(sv); sv = setTimeout(save, 400); };
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify({ v: 2, rd: Array.from(roads), b: Array.from(bm.values()).map(b => [b.t, b.x, b.y, +b.p.toFixed(3), b.r, b.c]), m: S.m, t: S.t, cam: { x: cam.x, y: cam.y, z: Z }, tool: tool, sel: sel, sp: speed })); } catch (e) {}
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY)); if (!d || d.v !== 2) return false;
+    roads = new Set(d.rd); bm = new Map();
+    d.b.forEach(a => { if (TY[a[0]]) bm.set(K(a[1], a[2]), { t: a[0], x: a[1], y: a[2], p: a[3], r: a[4], c: a[5] }); });
+    S = { m: d.m, t: d.t }; if (d.cam) { cam.x = d.cam.x; cam.y = d.cam.y; Z = d.cam.z || Z; }
+    if (d.sel) sel = Object.assign(sel, d.sel); if (d.tool) tool = d.tool; if (d.sp) { speed = d.sp; $("#bSpd").textContent = speed + "×"; }
+    return true;
+  } catch (e) { return false; }
+}
+function migrate() {   // 把舊版 16×16 小鎮搬進新世界
+  try {
+    const d = JSON.parse(localStorage.getItem("town_save_v1")); if (!d || d.v !== 1 || d.g.length !== 256) return false;
+    const ox = DOCK.x - 13, oy = DOCK.y - 7, MT = { house: ["h1", 80], shop: ["s1", 120], work: ["w1", 150], park: ["p1", 60] };
+    roads = new Set(); bm = new Map();
+    for (let i = 0; i < 256; i++) if (d.g[i] === "2") roads.add(K(i % 16 + ox, ((i / 16) | 0) + oy));
+    d.b.forEach(b => { const m = MT[b.t]; if (m) bm.set(K(b.x + ox, b.y + oy), { t: m[0], x: b.x + ox, y: b.y + oy, p: b.p, r: b.r || 0, c: m[1] }); });
+    S = { m: d.m, t: d.t }; return true;
+  } catch (e) { return false; }
+}
+function fresh() { roads = new Set([K(DOCK.x, DOCK.y)]); bm = new Map(); S = { m: 2400, t: 120 }; centerOn(DOCK.x - 2, DOCK.y + 2); }
+function centerOn(x, y) { cam.x = (x - y) * HW; cam.y = (x + y) * HH; }
+function home() {
+  let sx = 0, sy = 0, n = 0; bm.forEach(b => { sx += b.x; sy += b.y; n++; });
+  if (n) centerOn(sx / n, sy / n); else centerOn(DOCK.x - 2, DOCK.y + 2); clampCam(); dirty();
+}
+
+// ===== 道路連通：只有接到河岸的路才算通 =====
+function calcConn() {
+  conn = new Set(); CR = []; const q = [];
+  roads.forEach(k => { const x = k % N, y = (k / N) | 0; if (D4.some(d => isW(x + d[0], y + d[1]))) { conn.add(k); q.push(k); } });
+  while (q.length) {
+    const k = q.pop(), x = k % N, y = (k / N) | 0; CR.push(k);
+    for (const d of D4) { const a = x + d[0], b = y + d[1]; if (!inW(a, b)) continue; const j = K(a, b); if (roads.has(j) && !conn.has(j)) { conn.add(j); q.push(j); } }
+  }
+}
+const roadAdj = (x, y) => D4.some(d => { const a = x + d[0], b = y + d[1]; return inW(a, b) && conn.has(K(a, b)); });
+const ok = b => TY[b.t].cat === "park" || roadAdj(b.x, b.y);
+
+// ===== 提示、資訊卡 =====
+let mt;
+function say(m) { const e = $("#msg"); e.textContent = m; e.classList.add("show"); clearTimeout(mt); mt = setTimeout(() => e.classList.remove("show"), 2600); }
+function showCard(b) {
+  cardB = b; const T = TY[b.t];
+  const st = b.p < 1 ? "興建中 " + Math.floor(b.p * 100) + "%" : T.cat === "house" ? "住戶 " + b.r + "/4" : T.cat === "park" ? "景觀" : "運作中";
+  $("#cardT").textContent = T.n + "・" + st + (ok(b) ? "" : "（沒有連到河岸的路）");
+  $("#cardDel").textContent = "移除（退還 " + b.c + " 文）"; $("#card").style.display = "flex";
+}
+function hideCard() { cardB = null; $("#card").style.display = "none"; }
+function removeB(b) {
+  S.m += b.c; bm.delete(K(b.x, b.y)); syncRes(); hideCard(); say("已移除 " + TY[b.t].n + "，退還 " + b.c + " 文"); dirty();
+}
+$("#cardDel").onclick = () => { if (cardB) removeB(cardB); };
+$("#cardX").onclick = hideCard;
+
+// ===== 操作 =====
+const curT = () => tool === "road" ? { c: ROAD, cat: "road" } : TY[sel[tool]];
+function act(x, y) {
+  if (!inW(x, y)) return;
+  const k = K(x, y), b = bm.get(k);
+  if (tool === "look") { if (b) showCard(b); else { hideCard(); say(isW(x, y) ? "河水" : roads.has(k) ? (conn.has(k) ? "青石路" : "青石路（還沒接到河岸）") : "空地"); } return; }
+  if (tool === "del") {
+    if (b) removeB(b);
+    else if (roads.has(k)) { roads.delete(k); S.m += ROAD; calcConn(); syncRes(); dirty(); }
+    else say("這裡沒有可以拆的東西");
+    return;
+  }
+  if (isW(x, y)) return say("河面上不能蓋");
+  if (roads.has(k) || b) return say("這格已經有東西了");
+  const T = curT(); if (S.m < T.c) return say("鎮庫不足，需要 " + T.c + " 文");
+  if (tool === "road") { roads.add(k); S.m -= ROAD; calcConn(); dirty(); return; }
+  if (T.cat !== "park" && !roadAdj(x, y)) return say("旁邊沒有路：要先把路接到河岸");
+  S.m -= T.c; bm.set(k, { t: T.id, x: x, y: y, p: 0, r: 0, c: T.c }); dirty();
+}
+function can(x, y) {
+  const k = K(x, y);
+  if (tool === "del") return bm.has(k) || roads.has(k);
+  if (isW(x, y) || roads.has(k) || bm.has(k)) return false;
+  const T = curT(); if (S.m < T.c) return false;
+  return tool === "road" || T.cat === "park" || roadAdj(x, y);
+}
+function renderSub() {
+  const e = $("#sub"), L = CAT[tool];
+  if (!L || L.length < 2) { e.style.display = "none"; return; }
+  e.style.display = "flex";
+  e.innerHTML = L.map(v => '<button class="ch' + (sel[tool] === v.id ? " on" : "") + '" data-id="' + v.id + '"><span>' + v.n + "</span><small>" + v.c + "文</small></button>").join("");
+}
+$("#sub").onclick = e => { const b = e.target.closest(".ch"); if (!b) return; sel[tool] = b.dataset.id; renderSub(); updBar(); dirty(); };
+function updBar() {
+  document.querySelectorAll(".tb").forEach(b => {
+    const k = b.dataset.k, L = CAT[k]; b.classList.toggle("on", k === tool);
+    b.querySelector("small").textContent = k === "road" ? ROAD + "文" : L ? TY[sel[k]].c + "文" : "";
+  });
+}
+function pick(k) {
+  tool = k; hideCard(); renderSub(); updBar();
+  say({ look: "拖曳移動畫面，點建築可以查看或移除", road: "拖曳鋪路（兩指移動畫面）", del: "點擊或拖曳拆除，退還建造費用", park: "園景可蓋在任何空地，不用靠路" }[k] || "點擊空地建造，要蓋在路旁");
+  dirty();
+}
+TOOLS.forEach(t => {
+  const b = document.createElement("button"); b.className = "tb"; b.dataset.k = t[0];
+  b.innerHTML = "<span>" + t[1] + "</span><small></small>"; b.onclick = () => pick(t[0]); $("#bar").appendChild(b);
+});
+
+// ===== 模擬 =====
+function syncRes() {
+  let pop = 0; bm.forEach(b => { if (b.p >= 1) pop += b.r; }); pop = Math.min(36, pop);
+  while (R.length < pop && CR.length) { const k = CR[Math.random() * CR.length | 0]; R.push({ x: k % N + .5, y: ((k / N) | 0) + .5, tx: k % N, ty: (k / N) | 0, px: -1, py: -1, c: Math.random() * 4 | 0, w: Math.random() * 6 }); }
+  while (R.length > pop) R.pop();
+}
+function moveRes(d) {
+  R.forEach(r => {
+    if (!conn.has(K(r.tx, r.ty))) { if (!CR.length) return; const k = CR[Math.random() * CR.length | 0]; r.tx = k % N; r.ty = (k / N) | 0; r.x = r.tx + .5; r.y = r.ty + .5; r.px = -1; }
+    const gx = r.tx + .5, gy = r.ty + .5, dx = gx - r.x, dy = gy - r.y, dd = Math.hypot(dx, dy), v = d * 1.1;
+    if (dd > v) { r.x += dx / dd * v; r.y += dy / dd * v; return; }
+    r.x = gx; r.y = gy;
+    const n = D4.map(a => [r.tx + a[0], r.ty + a[1]]).filter(a => inW(a[0], a[1]) && conn.has(K(a[0], a[1])));
+    if (!n.length) return;
+    let c = n.filter(a => !(a[0] === r.px && a[1] === r.py)); if (!c.length) c = n;
+    const nx = c[Math.random() * c.length | 0]; r.px = r.tx; r.py = r.ty; r.tx = nx[0]; r.ty = nx[1];
+  });
+}
+function tick() {
+  let pop = 0, shop = 0, work = 0, pk = 0, hasS = false, hasW = false;
+  bm.forEach(b => {
+    if (b.p < 1) return; const T = TY[b.t];
+    if (T.cat === "park") { pk++; return; } if (!ok(b)) return;
+    pop += b.r; if (T.cat === "shop") { shop += T.inc; hasS = true; } if (T.cat === "work") { work += T.inc; hasW = true; }
+  });
+  S.m += Math.floor(pop * 1.5) + (pop > 0 ? shop + pk : 0) + (hasS ? work : 0); syncRes();
+}
+function step(d) {
+  S.t += d;
+  bm.forEach(b => {
+    const T = TY[b.t];
+    if (b.p < 1) b.p = Math.min(1, b.p + d / (T.bt || 18));
+    else if (T.cat === "house" && b.r < 4 && ok(b)) { b.mv = (b.mv || 0) + d; if (b.mv >= 4) { b.mv = 0; b.r++; syncRes(); } }
+  });
+  acc += d; if (acc >= 10) { acc -= 10; tick(); }
+  moveRes(d);
+}
+
+// ===== 繪圖 =====
+function poly(pts, fill, stroke) {
+  cx.beginPath(); cx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) cx.lineTo(pts[i][0], pts[i][1]); cx.closePath();
+  cx.fillStyle = fill; cx.fill(); if (stroke !== false) { cx.strokeStyle = stroke || "rgba(20,30,25,.25)"; cx.lineWidth = .8; cx.stroke(); }
+}
+function tile(x, y, fill, stroke) { poly([P(x, y), P(x + 1, y), P(x + 1, y + 1), P(x, y + 1)], fill, stroke || false); }
+function box(x0, y0, x1, y1, z0, z1, cR, cL, cT) {
+  const a = P(x0, y1, z0), b = P(x1, y1, z0), c = P(x1, y0, z0), a1 = P(x0, y1, z1), b1 = P(x1, y1, z1), c1 = P(x1, y0, z1), d1 = P(x0, y0, z1);
+  poly([a, b, b1, a1], cL); poly([b, c, c1, b1], cR); if (cT) poly([d1, c1, b1, a1], cT);
+}
+function roof(x, y, h, rh, m, e, f) {
+  const T = P(x + m - e, y + m - e, h), Rr = P(x + 1 - m + e, y + m - e, h), B = P(x + 1 - m + e, y + 1 - m + e, h), L = P(x + m - e, y + 1 - m + e, h), A = P(x + .5, y + .5, h + rh);
+  poly([T, L, A], f[2]); poly([T, Rr, A], f[2]); poly([L, B, A], f[1]); poly([B, Rr, A], f[0]); return { B: B, L: L, Rr: Rr };
+}
+function drawB(b, ts) {
+  const T = TY[b.t]; if (T.cat === "park") return drawPark(b, T, ts);
+  const p = Math.max(.15, b.p), h = T.h * p, rh = T.r * p, m = .1, e = .14, x = b.x, y = b.y, done = b.p >= 1, dc = T.d;
+  if (!done) cx.globalAlpha = .8;
+  box(x + m, y + m, x + 1 - m, y + 1 - m, 0, h, T.w[0], T.w[1], null);
+  const c = roof(x, y, h, rh, m, e, T.f);
+  if (done) {
+    poly([P(x + m + .3, y + 1 - m, 0), P(x + m + .55, y + 1 - m, 0), P(x + m + .55, y + 1 - m, h * .6), P(x + m + .3, y + 1 - m, h * .6)], "#4b3a2c");
+    poly([P(x + 1 - m, y + .3, h * .45), P(x + 1 - m, y + .6, h * .45), P(x + 1 - m, y + .6, h * .75), P(x + 1 - m, y + .3, h * .75)], "#6e8f9a");
+    const lamp = q => { cx.fillStyle = "#e0553a"; cx.beginPath(); cx.arc(q[0], q[1] + 4, 3, 0, 7); cx.fill(); };
+    if (dc === "lan") lamp(c.B); else if (dc === "lan2") { lamp(c.L); lamp(c.Rr); }
+    else if (dc === "flag") { const t = h + rh + 12; box(x + .82, y + .82, x + .86, y + .86, h, t, "#6b4f3a", "#523b2b", null); poly([P(x + .86, y + .84, t), P(x + .86, y + .84, t - 7), P(x + 1.2, y + .84, t - 3.5)], "#d9a441"); }
+    else if (dc === "cloth") ["#c94f4f", "#4f7bc9", "#e0b13a"].forEach((col, i) => poly([P(x + 1 - m, y + .25 + i * .22, h * .85), P(x + 1 - m, y + .37 + i * .22, h * .85), P(x + 1 - m, y + .37 + i * .22, h * .35), P(x + 1 - m, y + .25 + i * .22, h * .35)], col));
+    else if (dc === "sign") poly([P(x + .68, y + 1 - m + .02, h * .9), P(x + .92, y + 1 - m + .02, h * .9), P(x + .92, y + 1 - m + .02, h * .55), P(x + .68, y + 1 - m + .02, h * .55)], "#8a5a2b");
+    else if (dc === "kiln" || dc === "anvil") { box(x + .62, y + .2, x + .78, y + .36, h * .8, h + rh + 6, "#7d7266", "#5f564c", "#8d8275"); if (dc === "anvil") box(x + .64, y + .22, x + .76, y + .34, h + rh + 6, h + rh + 9, "#e0802e", "#c9651c", "#f0a050"); }
+    else if (dc === "logs") { box(x + .08, y + .84, x + .42, y + .98, 0, 5, "#b08a5e", "#7a5b3b", "#c29c6c"); box(x + .12, y + .86, x + .38, y + .96, 5, 9, "#b08a5e", "#7a5b3b", "#c29c6c"); }
+    else if (dc === "yarn") [["#c94f4f", .08], ["#4f7bc9", .3], ["#e0b13a", .52]].forEach(k => box(x + k[1], y + .84, x + k[1] + .16, y + .98, 0, 6, k[0], k[0], k[0]));
+    else if (dc === "jars") [[.2, .92], [.4, .94], [.6, .92]].forEach(j => { const q = P(x + j[0], y + j[1], 0); cx.fillStyle = "#8a5a3a"; cx.beginPath(); cx.ellipse(q[0], q[1] - 4, 3.5, 4.5, 0, 0, 7); cx.fill(); });
+  }
+  cx.globalAlpha = 1;
+  if (!done) {
+    cx.strokeStyle = "#8a6a3a"; cx.lineWidth = 1.4;
+    [[x + m, y + m], [x + 1 - m, y + m], [x + 1 - m, y + 1 - m], [x + m, y + 1 - m]].forEach(q => { const a = P(q[0], q[1], 0), z = P(q[0], q[1], h + 10); cx.beginPath(); cx.moveTo(a[0], a[1]); cx.lineTo(z[0], z[1]); cx.stroke(); });
+  } else if (!ok(b)) {
+    const q = P(x + .5, y + .5, h + rh + 14); cx.fillStyle = "#c0392b"; cx.beginPath(); cx.arc(q[0], q[1], 7, 0, 7); cx.fill();
+    cx.fillStyle = "#fff"; cx.font = "bold 10px sans-serif"; cx.textAlign = "center"; cx.fillText("!", q[0], q[1] + 3.5);
+  }
+}
+function drawPark(b, T, ts) {
+  const p = Math.max(.2, b.p), x = b.x, y = b.y, c = P(x + .5, y + .5), X = c[0], Y = c[1];
+  const shade = (rx, ry) => { cx.fillStyle = "rgba(0,0,0,.16)"; cx.beginPath(); cx.ellipse(X, Y, rx * p, ry * p, 0, 0, 7); cx.fill(); };
+  const k = T.k;
+  if (k === "willow") {
+    shade(16, 7); box(x + .44, y + .44, x + .56, y + .56, 0, 14 * p, "#6b4f3a", "#523b2b", "#7a5d45");
+    cx.fillStyle = "#6a9a52"; cx.beginPath(); cx.arc(X, Y - 24 * p, 13 * p, 0, 7); cx.fill();
+    cx.strokeStyle = "#8fbf6a"; cx.lineWidth = 1.4; for (let i = -3; i <= 3; i++) { cx.beginPath(); cx.moveTo(X + i * 3.5 * p, Y - 22 * p); cx.lineTo(X + i * 4.2 * p, Y - 4 * p); cx.stroke(); }
+  } else if (k === "flower") {
+    poly([P(x + .1, y + .1), P(x + .9, y + .1), P(x + .9, y + .9), P(x + .1, y + .9)], "#86ad62", false);
+    [[.25, .3, "#e0708a"], [.6, .25, "#f0c14a"], [.4, .55, "#c27ae0"], [.7, .6, "#f0f0f0"], [.25, .75, "#f0c14a"], [.55, .8, "#e0708a"]].forEach(f => { const q = P(x + f[0], y + f[1], 2 * p); cx.fillStyle = f[2]; cx.beginPath(); cx.arc(q[0], q[1], 2.4, 0, 7); cx.fill(); });
+  } else if (k === "pond") {
+    poly([P(x + .04, y + .04), P(x + .96, y + .04), P(x + .96, y + .96), P(x + .04, y + .96)], "#9a978a", false);
+    poly([P(x + .14, y + .14), P(x + .86, y + .14), P(x + .86, y + .86), P(x + .14, y + .86)], "hsl(195 45% 55%)", false);
+    cx.strokeStyle = "rgba(255,255,255,.5)"; cx.lineWidth = 1; cx.beginPath(); const w = Math.sin(ts / 600); cx.ellipse(X, Y, 10 + 3 * w, 5 + 1.5 * w, 0, 0, 7); cx.stroke();
+  } else if (k === "pavilion") {
+    poly([P(x + .08, y + .08), P(x + .92, y + .08), P(x + .92, y + .92), P(x + .08, y + .92)], "#cfc5ae", false);
+    const h = 22 * p; [[.2, .2], [.8, .2], [.2, .8], [.8, .8]].forEach(q => box(x + q[0] - .03, y + q[1] - .03, x + q[0] + .03, y + q[1] + .03, 0, h, "#a8553a", "#85402b", null));
+    roof(x, y, h, 12 * p, .04, .08, ["#c4503a", "#9a3a28", "#d96a52"]);
+  } else if (k === "bamboo") {
+    shade(14, 6); [[.2, .3, 28], [.45, .2, 34], [.7, .35, 30], [.3, .6, 32], [.6, .65, 36], [.8, .8, 28], [.2, .85, 30]].forEach(s => {
+      box(x + s[0] - .03, y + s[1] - .03, x + s[0] + .03, y + s[1] + .03, 0, s[2] * p, "#6f9a55", "#58803f", "#84ad69");
+      const q = P(x + s[0], y + s[1], s[2] * p); cx.fillStyle = "#7fb05f"; cx.beginPath(); cx.ellipse(q[0], q[1] - 2, 6, 3, 0, 0, 7); cx.fill();
+    });
+  } else {
+    shade(15, 6);
+    poly([[X - 13 * p, Y], [X - 7 * p, Y - 14 * p], [X + 3 * p, Y - 17 * p], [X + 13 * p, Y - 5 * p], [X + 10 * p, Y + 2]], "#8d9091");
+    poly([[X - 7 * p, Y - 14 * p], [X + 3 * p, Y - 17 * p], [X + 1 * p, Y - 6 * p], [X - 8 * p, Y - 4 * p]], "#a9acad");
+    poly([[X + 4 * p, Y - 4], [X + 16 * p, Y - 4], [X + 14 * p, Y + 3], [X + 5 * p, Y + 3]], "#7c7f80");
+  }
+}
+function drawR(r, ts) {
+  const q = P(r.x, r.y), x = q[0], y = q[1], bob = Math.abs(Math.sin(ts / 140 + r.w)) * 1.2;
+  cx.fillStyle = "rgba(0,0,0,.22)"; cx.beginPath(); cx.ellipse(x, y, 4, 2, 0, 0, 7); cx.fill();
+  cx.fillStyle = ["#b8452e", "#3f6f8a", "#8a6a2c", "#5a7a46"][r.c]; cx.fillRect(x - 2, y - 9 - bob, 4, 7);
+  cx.fillStyle = "#e8cfa8"; cx.beginPath(); cx.arc(x, y - 11 - bob, 2.4, 0, 7); cx.fill();
+}
+function boat(x, y, ts) {
+  const z = 1 + Math.sin(ts / 500 + y) * 1.2;
+  box(x - .2, y, x + .2, y + 1.2, z, z + 5, "#6b4f3a", "#523b2b", "#8a6a50");
+  box(x - .02, y + .5, x + .02, y + .54, z + 5, z + 24, "#4b3a2c", "#4b3a2c", null);
+  poly([P(x, y + .3, z + 22), P(x, y + .3, z + 9), P(x, y + .85, z + 9), P(x, y + .85, z + 22)], "#efe7d2");
+}
+function draw(ts) {
+  cx.setTransform(DPR, 0, 0, DPR, 0, 0); cx.fillStyle = "#a9c3b6"; cx.fillRect(0, 0, VW, VH);
+  const T0 = [DPR * Z, 0, 0, DPR * Z, DPR * (VW / 2 - cam.x * Z), DPR * (VH / 2 - cam.y * Z)];
+  cx.setTransform(T0[0], T0[1], T0[2], T0[3], T0[4], T0[5]);
+  const d0 = Math.floor((cam.x - VW / 2 / Z) / HW) - 2, d1 = Math.ceil((cam.x + VW / 2 / Z) / HW) + 2;
+  const s0 = Math.floor((cam.y - VH / 2 / Z) / HH) - 3, s1 = Math.ceil((cam.y + VH / 2 / Z) / HH) + 5;
+  for (let s = s0; s <= s1; s++) for (let d = d0 + (((s + d0) % 2) + 2) % 2; d <= d1; d += 2) {
+    const x = (s + d) / 2, y = (s - d) / 2; if (!inW(x, y)) continue;
+    if (isW(x, y)) tile(x, y, WC[(((Math.sin(ts / 700 + x * .8 + y * .5) + 1) * 3.5) | 0)]);
+    else if (roads.has(K(x, y))) tile(x, y, conn.has(K(x, y)) ? "#c9c4b1" : "#bcb7a5", "#9a9582");
+    else tile(x, y, (x === RX - 1 || x === RX + 2) ? "#c3bd8e" : GR[hs(x, y) % 3]);
+  }
+  poly([P(RX, DOCK.y + .2), P(RX + .8, DOCK.y + .2), P(RX + .8, DOCK.y + .8), P(RX, DOCK.y + .8)], "#8b6b4b");
+  if (hov && tool !== "look" && inW(hov[0], hov[1])) tile(hov[0], hov[1], can(hov[0], hov[1]) ? "rgba(110,220,140,.55)" : "rgba(220,90,70,.55)");
+  const it = [], dk = dark(hr()), vis = (x, y) => { const s = x + y, d = x - y; return s >= s0 && s <= s1 && d >= d0 && d <= d1; };
+  bm.forEach(b => { if (vis(b.x, b.y)) it.push([b.x + b.y + .5, () => drawB(b, ts)]); });
+  R.forEach((r, i) => { if ((dk > .6 && i % 3) || !vis(r.x, r.y)) return; it.push([r.x + r.y, () => drawR(r, ts)]); });
+  const ty = Math.round(cam.y / HH - RX), st = Math.floor((ty - 50) / 100) * 100;
+  for (let k = 0; k < 5; k++) { const by = st + ((ts / 1000 * .45 + k * 20) % 100), bx = RX + (k % 2 ? .65 : 1.3); if (by > 0 && by < N - 2) it.push([bx + by + .6, () => boat(bx, by, ts)]); }
+  it.sort((a, b) => a[0] - b[0]); it.forEach(o => o[1]());
+  cx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (dk > 0) {
+    cx.fillStyle = "rgba(16,26,58," + (.5 * dk) + ")"; cx.fillRect(0, 0, VW, VH);
+    cx.setTransform(T0[0], T0[1], T0[2], T0[3], T0[4], T0[5]); cx.globalCompositeOperation = "lighter";
+    bm.forEach(b => { if (b.p < 1 || TY[b.t].cat === "park" || !vis(b.x, b.y)) return; const q = P(b.x + .5, b.y + 1, 10); cx.fillStyle = "rgba(255,176,80," + (.32 * dk) + ")"; cx.beginPath(); cx.arc(q[0], q[1], 13, 0, 7); cx.fill(); });
+    cx.globalCompositeOperation = "source-over";
+  }
+}
+
+// ===== 畫面與輸入 =====
+function fit() { DPR = Math.min(2, window.devicePixelRatio || 1); VW = innerWidth; VH = innerHeight; cv.width = VW * DPR; cv.height = VH * DPR; }
+const clampCam = () => { cam.x = Math.max(-N * HW, Math.min(N * HW, cam.x)); cam.y = Math.max(0, Math.min(2 * N * HH, cam.y)); };
+function zoomAt(px, py, nz) {
+  nz = Math.max(.3, Math.min(2.4, nz)); const wx = (px - VW / 2) / Z + cam.x, wy = (py - VH / 2) / Z + cam.y;
+  Z = nz; cam.x = wx - (px - VW / 2) / Z; cam.y = wy - (py - VH / 2) / Z; clampCam();
+}
+const tileAt = (px, py) => { const wx = (px - VW / 2) / Z + cam.x, wy = (py - VH / 2) / Z + cam.y; return [Math.floor((wx / HW + wy / HH) / 2), Math.floor((wy / HH - wx / HW) / 2)]; };
+const ptr = new Map(); let drag = null, pinch = null, lastT = null;
+cv.addEventListener("contextmenu", e => e.preventDefault());
+cv.addEventListener("pointerdown", e => {
+  if (introOpen) return;
+  cv.setPointerCapture(e.pointerId); ptr.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY });
+  if (ptr.size === 2) { const v = Array.from(ptr.values()); pinch = { d: Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y), z: Z, mx: (v[0].x + v[1].x) / 2, my: (v[0].y + v[1].y) / 2 }; drag = { moved: true }; return; }
+  const t = tileAt(e.clientX, e.clientY); hov = t; const pan = e.button === 2 || e.button === 1;
+  drag = { moved: false, pan: pan, paint: !pan && (tool === "road" || tool === "del") };
+  if (drag.paint) { act(t[0], t[1]); lastT = t[0] + "," + t[1]; }
+});
+cv.addEventListener("pointermove", e => {
+  const p = ptr.get(e.pointerId);
+  if (!p) { if (e.pointerType === "mouse") hov = tileAt(e.clientX, e.clientY); return; }
+  if (ptr.size === 2 && pinch) {
+    p.x = e.clientX; p.y = e.clientY; const v = Array.from(ptr.values()), d = Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y), mx = (v[0].x + v[1].x) / 2, my = (v[0].y + v[1].y) / 2;
+    cam.x -= (mx - pinch.mx) / Z; cam.y -= (my - pinch.my) / Z; pinch.mx = mx; pinch.my = my; zoomAt(mx, my, pinch.z * d / pinch.d); return;
+  }
+  hov = tileAt(e.clientX, e.clientY); if (!drag) return;
+  if (drag.paint) { const k = hov[0] + "," + hov[1]; if (k !== lastT) { lastT = k; act(hov[0], hov[1]); } p.x = e.clientX; p.y = e.clientY; return; }
+  if (!drag.moved && Math.hypot(e.clientX - p.sx, e.clientY - p.sy) > 6) drag.moved = true;
+  if (drag.moved) { cam.x -= (e.clientX - p.x) / Z; cam.y -= (e.clientY - p.y) / Z; clampCam(); }
+  p.x = e.clientX; p.y = e.clientY;
+});
+function up(e) {
+  const p = ptr.get(e.pointerId); if (!p) return;
+  if (ptr.size === 1 && drag && !drag.moved && !drag.paint && !drag.pan && e.type === "pointerup") { const t = tileAt(e.clientX, e.clientY); act(t[0], t[1]); }
+  ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; drag = ptr.size === 1 ? { moved: true } : null;
+  if (e.pointerType !== "mouse") hov = null; dirty();
+}
+cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+cv.addEventListener("wheel", e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, Z * Math.exp(-e.deltaY * .0015)); dirty(); }, { passive: false });
+addEventListener("keydown", e => {
+  const k = e.key, s = 40 / Z;
+  if (k === "ArrowLeft" || k === "a") cam.x -= s; else if (k === "ArrowRight" || k === "d") cam.x += s;
+  else if (k === "ArrowUp" || k === "w") cam.y -= s; else if (k === "ArrowDown" || k === "s") cam.y += s;
+  else if (k === "Escape") pick("look"); else if (k === " ") { e.preventDefault(); togglePause(); }
+  clampCam();
+});
+function togglePause() { paused = !paused; $("#bPause").textContent = paused ? "繼續" : "暫停"; }
+$("#bPause").onclick = togglePause;
+$("#bSpd").onclick = () => { speed = speed === 1 ? 2 : speed === 2 ? 4 : 1; $("#bSpd").textContent = speed + "×"; dirty(); };
+$("#zi").onclick = () => { zoomAt(VW / 2, VH / 2, Z * 1.25); dirty(); }; $("#zo").onclick = () => { zoomAt(VW / 2, VH / 2, Z / 1.25); dirty(); };
+$("#zh").onclick = home;
+$("#bReset").onclick = () => { if (confirm("要清除目前的小鎮，重新開始嗎？")) { try { localStorage.removeItem(KEY); localStorage.removeItem("town_save_v1"); } catch (e) {} location.reload(); } };
+function hud() {
+  let pop = 0; bm.forEach(b => { pop += b.r; });
+  const h = hr(), hh = Math.floor(h), mm = Math.floor((h - hh) * 60);
+  $("#sPop").textContent = pop; $("#sB").textContent = bm.size; $("#sM").textContent = Math.floor(S.m); $("#sR").textContent = roads.size;
+  $("#clk").textContent = "第" + (Math.floor(S.t / 360) + 1) + "日 " + pad(hh) + ":" + pad(mm) + "・" + SH[Math.floor(((hh + 1) % 24) / 2)] + "時" + (dark(h) > .5 ? "・夜" : "");
+}
+
+// ===== 啟動 =====
+fit(); Z = Math.max(.55, Math.min(1.2, VW / 600)); addEventListener("resize", fit);
+let had = load();
+if (!had && migrate()) { had = true; home(); save(); }
+if (!had) fresh();
+calcConn(); syncRes(); clampCam(); renderSub(); updBar();
+if (!had) introOpen = true; else $("#intro").style.display = "none";
+$("#go").onclick = () => { introOpen = false; $("#intro").style.display = "none"; save(); };
+let last = 0;
+function loop(ts) {
+  const dt = Math.min(.1, (ts - last) / 1000 || 0); last = ts;
+  if (!paused && !introOpen) step(dt * speed);
+  draw(ts); requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+setInterval(hud, 250); setInterval(save, 5000);
+document.addEventListener("visibilitychange", () => { if (document.hidden) save(); }); addEventListener("pagehide", save);
+})();
+</script>
+</body>
+</html>
