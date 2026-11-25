@@ -829,6 +829,42 @@ function triggerSingleEvent() {
     });
   }
 
+  pool.push(
+    {
+      name: "街坊走水火警",
+      dur: 120,
+      run() {
+        const cs = getCivicStats();
+        if (cs.fireSafety >= 60) {
+          addChronicle("市政", "巷弄突發火警，幸賴消防局與水井完備，火勢迅速撲滅、秋毫無犯。");
+          say("🚒 街坊走水，消防局及時撲滅未釀災！");
+        } else {
+          const loss = Math.min(Math.floor(S.m * 0.08), 120);
+          S.m = Math.max(0, S.m - loss);
+          addChronicle("災異", "天乾物燥引發火警，因消防設施不足，公庫支出修繕費 " + loss + " 文。");
+          say("🔥 街坊走水！因消防不足損失修繕費 " + loss + " 文");
+        }
+      }
+    },
+    {
+      name: "市集宵小滋事",
+      dur: 120,
+      run() {
+        const cs = getCivicStats();
+        if (cs.security >= 60) {
+          S.m += 35;
+          addChronicle("治安", "巡檢司巡邏嚴密，當場緝獲流竄宵小並追回贓銀 35 文入庫。");
+          say("🛡️ 巡檢司緝獲宵小，追回贓銀 35 文！");
+        } else {
+          const loss = Math.min(Math.floor(S.m * 0.05), 80);
+          S.m = Math.max(0, S.m - loss);
+          addChronicle("治安", "市集夜半遭賊人潛入，因巡防薄弱失竊 " + loss + " 文。");
+          say("⚠️ 治安薄弱遭竊，鎮庫損失 " + loss + " 文");
+        }
+      }
+    }
+  );
+
   const ev = randOf(pool);
   activeEvent = { name: ev.name, endT: S.t + ev.dur, farmMult: ev.farmMult || 1.0, moodDelta: ev.moodDelta || 0 };
   ev.run();
@@ -1690,7 +1726,19 @@ function renderPedia() {
     if (v.stone) parts.push("需石材 " + v.stone + "（或雙倍銀兩）");
     if (v.upTo && TY[v.upTo]) parts.push("升級路線：→ " + TY[v.upTo].n + "（" + v.upCost + "文）");
     if (v.spd) parts.push("速度 " + v.spd + "×・承載 " + v.cap);
-    return '<div class="pedia-card"><b>' + v.n + '</b>　[' + w + '×' + d + ']　' + (v.c || 0) + ' 文' + (v.desc ? '<div class="pedia-sub">' + v.desc + '</div>' : '') + (parts.length ? '<div class="pedia-sub">' + parts.join('<br>') + '</div>' : '') + '</div>';
+    if (v.edu) parts.push("教育加成：+" + v.edu + " 點（加速工匠進修並提升幸福度）");
+    if (v.civic) {
+      const civicDesc = {
+        well: "提升消防安全 (+10%) 與醫療衛生 (+8%)",
+        granary: "糧食安全儲備上限 +60 份，全鎮貨物腐敗速度 -20%",
+        fire: "大幅提升消防安全 (+25%)，防範火災損失",
+        clinic: "提升醫療衛生 (+22%)，降低藥材不足時的染疾風險",
+        patrol: "提升城鎮治安 (+18%)，維護街巷秩序",
+        yamen: "提升城鎮治安 (+15%)，強化全鎮行政治理"
+      };
+      if (civicDesc[v.civic]) parts.push("市政效果：" + civicDesc[v.civic]);
+    }
+    return '<div class="pedia-card"><b>' + v.n + '</b>
   }).join("");
   const empty = '<div class="pedia-sub">此分類目前沒有可列出的項目。</div>';
   $("#pediaBody").innerHTML = tabHtml + (cards || empty);
@@ -2155,6 +2203,9 @@ function drawB(b, ts) {
   } else if (!ok(b)) {
     const q = P(x + bw * .5, y + bh * .5, h + rh + 14); cx.fillStyle = "#c0392b"; cx.beginPath(); cx.arc(q[0], q[1], 7, 0, 7); cx.fill();
     cx.fillStyle = "#fff"; cx.font = "bold 10px sans-serif"; cx.textAlign = "center"; cx.fillText("!", q[0], q[1] + 3.5);
+  } else if (b.st && (b.st.includes("缺") || b.st === "滿倉")) {
+    const q = P(x + bw * .5, y + bh * .5, h + rh + 14); cx.fillStyle = "#d39a2f"; cx.beginPath(); cx.arc(q[0], q[1], 7, 0, 7); cx.fill();
+    cx.fillStyle = "#2a1d05"; cx.font = "bold 9px sans-serif"; cx.textAlign = "center"; cx.fillText(b.st === "滿倉" ? "滿" : "缺", q[0], q[1] + 3);
   }
 }
 function drawPark(b, T, ts, part) {
@@ -2828,7 +2879,7 @@ $("#regGrid").addEventListener("click", e => {
 });
 $("#go").onclick = () => {
   chunks.forEach(c => { c.terrain = null; }); // 依開局地區重新生成地形
-  introOpen = false; $("#intro").style.display = "none"; save();
+  introOpen = false; $("#intro").style.display = "none"; pick(tool); save();
 };
 let last = 0;
 function loop(ts) {
