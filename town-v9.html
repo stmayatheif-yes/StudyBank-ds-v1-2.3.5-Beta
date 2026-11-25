@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>山河築夢・九州百業</title>
+<style>
+:root{--ink:#1d3a35;--cel:#dde7df;--amb:#d39a2f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#a9c3b6;color:var(--ink);overscroll-behavior:none;font-family:"Noto Serif TC","Source Han Serif TC","Songti TC","PMingLiU",serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.pn{background:rgba(221,231,223,.93);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(29,58,53,.25);border-radius:12px}
+button,a{font:inherit;color:var(--ink)}
+.b{font-size:.84rem;padding:6px 10px;cursor:pointer;white-space:nowrap;text-decoration:none;display:flex;align-items:center;border:1px solid rgba(29,58,53,.25)}
+#top{position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:5px;pointer-events:none;z-index:3}
+#top .row{display:flex;gap:5px;align-items:stretch}
+#top .pn{pointer-events:auto}
+#hud{flex:1;display:flex;flex-direction:column;justify-content:center;padding:4px 10px;line-height:1.3;min-width:0}
+#hud b{font-size:1.02rem;letter-spacing:.12em}
+#clk{font-size:.76rem;opacity:.82}
+#stats{display:flex;justify-content:space-between;align-items:center;gap:4px;padding:4px 10px;font-size:.8rem;flex-wrap:wrap}
+#stats b{font-size:.95rem}
+#stats button{padding:3px 7px;font-size:.76rem;background:transparent;border-radius:7px;cursor:pointer;border:1px solid rgba(29,58,53,.3)}
+#zoom{position:fixed;right:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:3}
+#zoom .b{justify-content:center;width:38px;height:38px;font-size:1.05rem}
+#msg{position:fixed;left:50%;bottom:calc(146px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:8px 14px;font-size:.86rem;opacity:0;pointer-events:none;transition:opacity .2s;max-width:92%;text-align:center;z-index:15}
+#msg.show{opacity:1}
+#eco,#roster,#chron,#pediaModal{position:fixed;left:8px;right:8px;top:calc(104px + env(safe-area-inset-top,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));display:none;flex-direction:column;padding:12px;overflow:hidden;z-index:6}
+#eco .eh,#roster .eh,#chron .eh,#pediaModal .eh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:6px;flex-wrap:wrap}
+#eco button,#roster button,#chron button,#roster select,#pediaModal button{padding:4px 10px;border-radius:8px;border:1px solid rgba(29,58,53,.3);background:rgba(255,255,255,.35);cursor:pointer;font:inherit;color:var(--ink)}
+#ecoBody,#rosterBody,#chronBody,#pediaBody{overflow:auto;font-size:.85rem;line-height:1.65}
+#ecoBody table,#rosterBody table,#pediaBody table{width:100%;border-collapse:collapse;margin:6px 0}
+#ecoBody th,#ecoBody td,#rosterBody th,#rosterBody td,#pediaBody th,#pediaBody td{text-align:left;padding:3px 5px;border-bottom:1px solid rgba(29,58,53,.15);font-size:.8rem}
+#ecoBody .nt{opacity:.8;font-size:.8rem}
+#cardT{white-space:pre-line;font-size:.86rem;line-height:1.55}
+#sub{position:fixed;left:8px;right:8px;bottom:calc(74px + env(safe-area-inset-bottom,0px));display:none;gap:5px;padding:6px;overflow-x:auto;z-index:3}
+.ch{flex:0 0 auto;background:transparent;border:1px solid rgba(29,58,53,.25);border-radius:9px;padding:4px 9px;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+.ch small{font-size:.68rem;opacity:.78}
+.ch.on{background:var(--amb);border-color:#8a5f12;color:#2a1d05;font-weight:bold}
+#card{position:fixed;left:8px;right:8px;bottom:calc(74px + env(safe-area-inset-bottom,0px));display:none;flex-direction:column;gap:7px;padding:10px 12px;z-index:4}
+#card .rw{display:flex;gap:6px;flex-wrap:wrap}
+#card button{flex:1 1 auto;padding:7px 8px;border-radius:9px;border:1px solid rgba(29,58,53,.3);background:rgba(255,255,255,.3);cursor:pointer;font-size:.82rem}
+#cardUpg{background:#5c8a58!important;border-color:#3a5e37!important;color:#fff!important;font-weight:bold}
+#cardDel{background:var(--amb)!important;border-color:#8a5f12!important}
+#bar{position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));display:flex;gap:5px;padding:5px;overflow-x:auto;z-index:3}
+.tb{flex:1 0 54px;background:transparent;border:1px solid rgba(29,58,53,.2);border-radius:9px;padding:5px 3px;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;font-size:.84rem}
+.tb small{font-size:.66rem;opacity:.75;min-height:1em}
+.tb.on{background:var(--amb);border-color:#8a5f12;color:#2a1d05;font-weight:bold}
+#intro{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(29,58,53,.55);padding:16px;z-index:20}
+#intro .pn{max-width:440px;max-height:88vh;overflow:auto;padding:18px}
+#intro h2{margin:0 0 6px;letter-spacing:.14em}
+#intro p{margin:6px 0;font-size:.85rem;opacity:.88;line-height:1.65}
+.reg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+.reg-card{padding:9px;border-radius:10px;border:1.5px solid rgba(29,58,53,.28);background:rgba(255,255,255,.42);cursor:pointer;text-align:left;transition:all .15s}
+.reg-card.on{background:rgba(211,154,47,.32);border-color:#8a5f12;box-shadow:0 2px 8px rgba(138,95,18,.2)}
+.reg-card b{display:block;font-size:.92rem;margin-bottom:2px}
+.reg-card small{display:block;font-size:.75rem;opacity:.85;line-height:1.45}
+#go{width:100%;margin-top:10px;padding:10px;background:var(--amb);border:1px solid #8a5f12;border-radius:9px;font-size:1rem;font-weight:bold;cursor:pointer}
+#resCard{position:fixed;left:8px;right:8px;top:calc(104px + env(safe-area-inset-top,0px));max-height:60vh;display:none;flex-direction:column;padding:12px;overflow:hidden;z-index:6}
+#resCard .rh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+#resCard .body{overflow:auto;font-size:.85rem;line-height:1.6;white-space:pre-line}
+#resCard button{padding:5px 12px;border-radius:8px;border:1px solid rgba(29,58,53,.3);background:transparent;cursor:pointer}
+#debug{position:fixed;left:8px;right:8px;top:calc(104px + env(safe-area-inset-top,0px));max-height:44vh;display:none;flex-direction:column;padding:10px 12px;overflow:auto;z-index:8;font:12px/1.5 ui-monospace,monospace;white-space:pre-wrap}
+.r-link{text-decoration:underline;cursor:pointer;font-weight:bold}
+.chron-item{padding:5px 0;border-bottom:1px dashed rgba(29,58,53,.18)}
+.chron-tag{display:inline-block;padding:1px 6px;border-radius:6px;background:rgba(211,154,47,.3);font-size:.74rem;margin-right:6px}
+#stageBadge,#wxBadge,#regBadge{font-size:.72rem;padding:2px 6px;border-radius:6px;margin-left:4px;vertical-align:middle;cursor:pointer;display:inline-flex;align-items:center;gap:2px}
+#stageBadge{background:rgba(211,154,47,.38);border:1px solid rgba(138,95,18,.4)}
+#wxBadge{background:rgba(111,163,189,.32);border:1px solid rgba(29,58,53,.32)}
+#regBadge{background:rgba(92,138,88,.28);border:1px solid rgba(29,58,53,.32)}
+#stageModal,#wxModal,#govModal{position:fixed;left:8px;right:8px;top:calc(104px + env(safe-area-inset-top,0px));max-height:74vh;display:none;flex-direction:column;padding:12px;overflow:hidden;z-index:7}
+#stageModal .eh,#wxModal .eh,#govModal .eh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+#stageModal button,#wxModal .eh button,#govModal .eh button{padding:5px 12px;border-radius:8px;border:1px solid rgba(29,58,53,.3);background:transparent;cursor:pointer}
+#stageBody,#wxBody,#govBody{overflow:auto;font-size:.85rem;line-height:1.65}
+#stageBody table{width:100%;border-collapse:collapse;margin:6px 0}
+#stageBody th,#stageBody td{text-align:left;padding:4px 5px;border-bottom:1px solid rgba(29,58,53,.15);font-size:.8rem}
+.stg-cur{background:rgba(211,154,47,.22);font-weight:bold}
+.stg-box{padding:8px 10px;border-radius:9px;background:rgba(255,255,255,.35);border:1px solid rgba(29,58,53,.16);margin:6px 0}
+.stg-ok{color:#2e6f40;font-weight:bold}
+.stg-lack{color:#a8382b;font-weight:bold}
+.wx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
+.wx-grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:6px 0}
+.wx-opt,.pol-opt,.pedia-tab{padding:5px 4px;border-radius:8px;border:1px solid rgba(29,58,53,.26);background:rgba(255,255,255,.35);cursor:pointer;text-align:center;font-size:.8rem}
+.wx-opt.on,.pol-opt.on,.pedia-tab.on{background:var(--amb);border-color:#8a5f12;color:#2a1d05;font-weight:bold}
+.pol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:5px 0 9px}
+.pedia-tabs{display:flex;gap:5px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px}
+.pedia-tab{flex:0 0 auto;padding:4px 10px}
+.pedia-card{padding:8px 10px;border-radius:9px;background:rgba(255,255,255,.4);border:1px solid rgba(29,58,53,.16);margin-bottom:7px}
+.pedia-card h4{margin:0 0 3px;font-size:.9rem;display:flex;justify-content:space-between}
+.rank-badge{display:inline-block;padding:1px 5px;border-radius:5px;background:rgba(211,154,47,.32);border:1px solid rgba(138,95,18,.35);font-size:.7rem;margin-left:4px}
+.ev-chain{padding:8px 10px;border-radius:9px;background:rgba(211,154,47,.16);border:1px solid rgba(138,95,18,.32);margin:6px 0}
+.ev-steps{display:flex;gap:4px;margin-top:5px;font-size:.74rem}
+.ev-step{flex:1;padding:2px 4px;border-radius:5px;background:rgba(255,255,255,.35);text-align:center;opacity:.65}
+.ev-step.cur{background:var(--amb);color:#2a1d05;font-weight:bold;opacity:1}
+.ev-step.done{background:rgba(46,111,64,.22);color:#1f522e;opacity:.9}
+.wx-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.32);border:1px solid rgba(29,58,53,.15);margin:6px 0}
+#obsExit{position:fixed;right:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:none;padding:8px 14px;font-size:.86rem;z-index:30;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+body.obs #top,body.obs #zoom,body.obs #bar,body.obs #sub,body.obs #card,body.obs #eco,body.obs #roster,body.obs #chron,body.obs #stageModal,body.obs #wxModal,body.obs #govModal,body.obs #pediaModal,body.obs #resCard,body.obs #debug{display:none!important}
+body.obs #obsExit{display:flex;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="top">
+  <div class="row">
+    <a class="pn b" id="backToBank" href="./index.html">← 題庫</a>
+    <div class="pn" id="hud"><div><b>山河築夢</b><span id="regBadge" title="開局世界生態地區">江南水鄉</span><span id="stageBadge" title="點擊查看城鎮規模與晉升條件">荒野聚落 ▾</span><span id="wxBadge" title="點擊調整四季與天氣">春・晴朗 ▾</span></div><span id="clk"></span></div>
+    <button class="pn b" id="bRot" title="旋轉建築方向 (R鍵)">↻</button>
+    <button class="pn b" id="bSpd" aria-label="遊戲速度">1×</button>
+    <button class="pn b" id="bPause">暫停</button>
+  </div>
+  <div class="pn" id="stats">
+    <span>居民 <b id="sPop">0</b></span><span>糧食 <b id="sFood">0</b></span><span>幸福 <b id="sHap">0</b>%</span><span>鎮庫 <b id="sM">0</b></span>
+    <button id="bPedia">百科</button><button id="bGov">政務</button><button id="bRoster">名冊</button><button id="bChron">史志</button><button id="bEco">經濟</button><button id="bReset">重來</button>
+  </div>
+</div>
+<div id="zoom">
+  <button class="pn b" id="zi" aria-label="放大">＋</button>
+  <button class="pn b" id="zo" aria-label="縮小">－</button>
+  <button class="pn b" id="zh" aria-label="回到小鎮">⌖</button>
+  <button class="pn b" id="bObs" aria-label="觀察模式" title="城鎮觀察模式">👁</button>
+  <button class="pn b" id="zd" aria-label="除錯">D</button>
+</div>
+<button id="obsExit" class="pn">退出觀察模式</button>
+<div id="msg" class="pn"></div>
+<div id="eco" class="pn"><div class="eh"><b>經濟與物產總覽（含保鮮度與季節需求）</b><button id="ecoX">關閉</button></div><div id="ecoBody"></div></div>
+<div id="pediaModal" class="pn"><div class="eh"><b>九州營造・建築百科全書</b><button id="pediaX">關閉</button></div><div id="pediaBody"></div></div>
+<div id="roster" class="pn"><div class="eh"><b>全鎮人口名冊</b><div><select id="rosterFilter"><option value="all">全部居民</option><option value="unemployed">待業中</option><option value="employed">已就業</option><option value="child">未成年</option></select> <button id="rosterAutoJob">一鍵補缺</button> <button id="rosterX">關閉</button></div></div><div id="rosterBody"></div></div>
+<div id="chron" class="pn"><div class="eh"><b>城鎮編年史</b><button id="chronX">關閉</button></div><div id="chronBody"></div></div>
+<div id="stageModal" class="pn"><div class="eh"><b>城鎮規模與晉升指南</b><button id="stageX">關閉</button></div><div id="stageBody"></div></div>
+<div id="wxModal" class="pn"><div class="eh"><b>四季與天象控制</b><button id="wxX">關閉</button></div><div id="wxBody"></div></div>
+<div id="govModal" class="pn"><div class="eh"><b>行政治理・稅率與文教總覽</b><button id="govX">關閉</button></div><div id="govBody"></div></div>
+<div id="resCard" class="pn"><div class="rh"><b id="resName">居民</b><button id="resX">關閉</button></div><div class="body" id="resBody"></div></div>
+<div id="debug" class="pn"></div>
+<div id="sub" class="pn"></div>
+<div id="card" class="pn"><div id="cardT"></div><div class="rw"><button id="cardUpg" style="display:none">升級</button><button id="cardDel"></button><button id="cardX">關閉</button></div></div>
+<div id="bar" class="pn"></div>
+<div id="intro"><div class="pn">
+  <h2>山河築夢・九州百業</h2>
+  <p>請先選擇開局所在的<b>世界地區生態</b>（決定地貌資源與風土加成；開局後亦可透過「區劃」整地改造）：</p>
+  <div class="reg-grid" id="regGrid">
+    <div class="reg-card on" data-reg="jiangnan"><b>🌿 江南水鄉</b><small>水網密布、沃土千里。稻米、茶葉、絲綢產量 +20%，石材與玉礦較稀少。</small></div>
+    <div class="reg-card" data-reg="mountain"><b>⛰️ 群山郡</b><small>峰巒疊翠、溪谷縱橫。石材、藥材、玉器產量 +25%，平地農耕略少。</small></div>
+    <div class="reg-card" data-reg="north"><b>🌾 北境平原</b><small>廣袤沃野、寒冬漫長。小麥、肉類產量 +20%，冬季燈油需求倍增。</small></div>
+    <div class="reg-card" data-reg="eastsea"><b>⛵ 東海港灣</b><small>江海交匯、商帆雲集。海運關稅與商鋪利潤 +25%，宜以海貿互通有無。</small></div>
+  </div>
+  <p style="font-size:.8rem;opacity:.82">操作提示：點擊上方 <b>↻</b> 或按 <b>R</b> 鍵旋轉建築方向（支援 1×1、2×2、3×3 大型建築）；選「鋪路」可切換土路、石板路、官道與驛站。</p>
+  <button id="go">立碑開鎮</button>
+</div></div>
+
+<script>
+(() => {
+"use strict";
+
+// ============================================================
+// 0. 常數與純函式
+// ============================================================
+const N = 10000, RX = 5004, HW = 32, HH = 16, DOCK = { x: 5003, y: 5000 }, KEY = "town_save_v6";
+const CH = 16;
+const D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+const K = (x, y) => y * N + x;
+const inW = (x, y) => x >= 0 && y >= 0 && x < N && y < N;
+const isW = (x, y) => x >= RX && x < RX + 2;
+const P = (x, y, z) => [(x - y) * HW, (x + y) * HH - (z || 0)];
+const hs = (x, y) => ((x * 73856093) ^ (y * 19349663)) >>> 0;
+const hr = () => (S.t / 15) % 24;
+const dark = h => (h >= 20 || h < 4) ? 1 : h >= 18 ? (h - 18) / 2 : h < 6 ? (6 - h) / 2 : 0;
+const pad = n => String(n).padStart(2, "0");
+const SH = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+
+const REGIONS = {
+  jiangnan: { id: "jiangnan", name: "江南水鄉", desc: "水網密布、絲茶之鄉", bonus: { rice: 1.2, tea: 1.2, silk: 1.2, stone: 0.8, jade: 0.75 }, tradeMult: 1.05, winterLen: 1.0, groundTint: null },
+  mountain: { id: "mountain", name: "群山郡", desc: "崇山峻嶺、玉石藥庫", bonus: { stone: 1.3, herb: 1.25, jade: 1.3, wheat: 0.85, rice: 0.8 }, tradeMult: 0.95, winterLen: 1.1, groundTint: "#99a38c" },
+  north:    { id: "north",    name: "北境平原", desc: "廣袤沃野、牧馬糧倉", bonus: { wheat: 1.25, meat: 1.25, oil: 1.15, tea: 0.75, silk: 0.8 }, tradeMult: 1.0, winterLen: 1.35, groundTint: "#b2ba82" },
+  eastsea:  { id: "eastsea",  name: "東海港灣", desc: "千帆競發、海貿都會", bonus: { veg: 1.15, oil: 1.1, stone: 0.9 }, tradeMult: 1.35, winterLen: 0.9, groundTint: "#a2bfa8" }
+};
+
+const GR_SEASON = [
+  { meadow: ["#a6ba72", "#9db46b", "#b2c77d"], plain: ["#9db46b", "#96ac64", "#a4b872"], forest: ["#7fa85e", "#76a055", "#8ab368"], mountain: ["#8f9a86", "#84907b", "#9aa491"], river: ["#c3bd8e", "#bdb78a", "#c9c394"], water: ["#6fa3bd", "#6a9db6", "#74a9c2"] },
+  { meadow: ["#88ab5a", "#7fa252", "#93b564"], plain: ["#7ea053", "#75974b", "#88aa5c"], forest: ["#5e8c45", "#55823d", "#68964e"], mountain: ["#7f8f79", "#74846e", "#8a9a84"], river: ["#c5bc86", "#beb580", "#ccc38e"], water: ["#5f98b5", "#5991ae", "#669fbc"] },
+  { meadow: ["#c4b068", "#bba65f", "#ccb872"], plain: ["#bba35d", "#b19954", "#c4ac66"], forest: ["#c78646", "#b8783c", "#d49654"], mountain: ["#998e7c", "#8e8372", "#a49987"], river: ["#c7b884", "#bfb07d", "#cfc08c"], water: ["#6996ad", "#628fa6", "#709db4"] },
+  { meadow: ["#dce5e2", "#d3ddd9", "#e4ecea"], plain: ["#d2dcd9", "#c9d4d0", "#dbe4e1"], forest: ["#9fb3a8", "#94a89d", "#aabdb2"], mountain: ["#cfd8d7", "#c4cecd", "#dae2e1"], river: ["#b8c2be", "#afb9b5", "#c1cbc7"], water: ["#678ea3", "#60869b", "#6f96ab"] }
+];
+const SEASONS = [
+  { id: 0, name: "春", full: "春季", farmMult: 1.15, decayMult: 0.8, desc: "春雨潤澤，農作生長 +15%，生鮮較耐放" },
+  { id: 1, name: "夏", full: "夏季", farmMult: 1.25, decayMult: 1.8, desc: "日照充足，農作 +25%，生鮮腐敗加快（茶葉/蔬菜需求↑）" },
+  { id: 2, name: "秋", full: "秋季", farmMult: 1.35, decayMult: 1.0, desc: "秋收豐年，農作 +35%，藥材與酒類需求提升" },
+  { id: 3, name: "冬", full: "冬季", farmMult: 0.55, decayMult: 0.4, desc: "天寒地凍，農作 -45%，燈油與肉類需求大增" }
+];
+const WEATHERS = [
+  { id: "clear", name: "晴朗", icon: "☀️", farmMult: 1.0, moodDelta: 2, spdMult: 1.0, desc: "萬里無雲，百姓心情愉悅，出行順暢。" },
+  { id: "cloudy", name: "多雲", icon: "⛅", farmMult: 1.0, moodDelta: 0, spdMult: 1.0, desc: "微風拂面，氣候宜人。" },
+  { id: "rain", name: "細雨", icon: "🌧️", farmMult: 1.25, moodDelta: -1, spdMult: 0.85, desc: "農田灌溉 +25%，土路略顯泥濘，行人撐傘慢行。" },
+  { id: "storm", name: "雷雨", icon: "⛈️", farmMult: 0.85, moodDelta: -4, spdMult: 0.7, desc: "狂風暴雨伴隨閃電；行人避雨，道路通行降速。" },
+  { id: "snow", name: "降雪", icon: "❄️", farmMult: 0.6, moodDelta: 1, spdMult: 0.72, desc: "銀裝素裹，出行速度略降，燈油消耗增加。" },
+  { id: "fog", name: "薄霧", icon: "🌫️", farmMult: 0.95, moodDelta: 0, spdMult: 0.88, desc: "江面升起晨霧；朦朧詩意，商船緩行。" }
+];
+const WX_MAP = {}; WEATHERS.forEach(w => { WX_MAP[w.id] = w; });
+const WC = []; for (let i = 0; i < 8; i++) WC.push("hsl(197 42% " + (47 + i * .9) + "%)");
+
+const VIEW_AI_FULL = 800;
+const VIEW_AI_MID = 2000;
+const RESERVE_CASH = 20;
+
+// ============================================================
+// 1. 完整商品庫（含保存期限 decay 與季節需求權重）
+// ============================================================
+const GD = {
+  // 基礎農牧與生鮮（有腐敗損耗 decay: 每次經濟結算損耗比例）
+  wheat:   { n: "小麥", p: 2,  shelf: "耐儲", decay: 0.005 },
+  rice:    { n: "稻米", p: 3,  shelf: "耐儲", decay: 0.005, need: 1.4, sNeed: [1.0, 1.0, 1.1, 1.1] },
+  veg:     { n: "蔬菜", p: 3,  shelf: "易腐", decay: 0.045, need: 0.9, sNeed: [1.1, 1.35, 1.0, 0.8] },
+  meat:    { n: "肉類", p: 7,  shelf: "易腐", decay: 0.04,  need: 0.6, sNeed: [0.9, 0.8, 1.1, 1.45] },
+  flour:   { n: "麵粉", p: 4,  shelf: "耐儲", decay: 0.008 },
+  noodle:  { n: "麵食", p: 6,  shelf: "短保", decay: 0.025, need: 1.6, sNeed: [1.0, 0.95, 1.05, 1.15] },
+  // 基礎建材與原料
+  stone:   { n: "石材", p: 5,  shelf: "永久", decay: 0 },
+  herb:    { n: "藥材", p: 6,  shelf: "中保", decay: 0.012 },
+  // 民生與經濟加工品
+  oil:     { n: "燈油", p: 8,  shelf: "耐儲", decay: 0.004, need: 0.55, sNeed: [0.85, 0.7, 1.05, 1.65] },
+  tea:     { n: "茶葉", p: 9,  shelf: "中保", decay: 0.01,  need: 0.5,  sNeed: [1.1, 1.45, 1.0, 0.85] },
+  med:     { n: "成藥", p: 14, shelf: "耐儲", decay: 0.005, need: 0.35, sNeed: [1.2, 1.0, 1.1, 1.3] },
+  pottery: { n: "陶器", p: 10, shelf: "永久", decay: 0,     need: 0.45 },
+  wood:    { n: "木器", p: 12, shelf: "永久", decay: 0,     need: 0.45 },
+  cloth:   { n: "布匹", p: 11, shelf: "永久", decay: 0,     need: 0.45 },
+  iron:    { n: "鐵器", p: 15, shelf: "永久", decay: 0,     need: 0.25 },
+  wine:    { n: "美酒", p: 13, shelf: "越陳越香", decay: 0, need: 0.5,  sNeed: [0.9, 0.85, 1.25, 1.3] },
+  // 高階奢侈品
+  silk:    { n: "絲綢", p: 22, shelf: "永久", decay: 0,     need: 0.3 },
+  jade:    { n: "玉器", p: 32, shelf: "永久", decay: 0,     need: 0.2 }
+};
+
+// ============================================================
+// 2. 交通道路與橋樑分級資料
+// ============================================================
+const ROAD_TYPES = {
+  r_dirt:  { id: "r_dirt",  n: "土路",   c: 8,  stone: 0, spd: 1.0, cap: 3,  col: "#b89f7d", connCol: "#c4ab87", stroke: "#8f7858", desc: "造價低廉，車馬多時易擁堵" },
+  r_stone: { id: "r_stone", n: "石板路", c: 16, stone: 1, spd: 1.45, cap: 6, col: "#bcb7a5", connCol: "#c9c4b1", stroke: "#9a9582", desc: "平整耐用，需 1 份石材（或雙倍銀兩代購）" },
+  r_imp:   { id: "r_imp",   n: "官道",   c: 32, stone: 2, spd: 2.1, cap: 12, col: "#9ea6a8", connCol: "#aeb8ba", stroke: "#6c7678", desc: "雙向通衢大道，大幅緩解物流壅塞" },
+  r_post:  { id: "r_post",  n: "驛站",   c: 90, stone: 2, spd: 2.3, cap: 16, col: "#b5895a", connCol: "#c99b68", stroke: "#7a542e", desc: "物流樞紐，周邊 6 格商旅與搬運提速 +30%" }
+};
+
+// ============================================================
+// 3. 完整建築百科資料庫（支援 1×1 / 2×2 / 3×3、旋轉、相鄰加成、住宅升級路線）
+// ============================================================
+const CAT = {
+  house: [
+    { id: "h0", n: "茅屋", c: 45,  w: 1, d_len: 1, cap: 2, tax: 6,  upTo: "h1", upCost: 60,  upReq: {}, h: 14, r: 10, wCol: ["#d9ccb4", "#b8aa90"], f: ["#b59b6d", "#8f7850", "#c7ad7e"], desc: "簡易草廬，可升級為民居" },
+    { id: "h1", n: "民居", c: 90,  w: 1, d_len: 1, cap: 4, tax: 12, upTo: "h2", upCost: 160, upReq: { stone: 2 }, h: 20, r: 13, wCol: ["#ece1c8", "#cdc0a1"], f: ["#7a928d", "#566b68", "#8aa39e"], desc: "青瓦白牆，可擴建為 2×2 院落" },
+    { id: "h2", n: "院落", c: 240, w: 2, d_len: 2, cap: 8, tax: 28, upTo: "h3", upCost: 380, upReq: { stone: 4, silk: 1 }, h: 24, r: 15, wCol: ["#ebe0c9", "#c9bda3"], f: ["#5d7a75", "#435955", "#6f8f89"], d: "lan", desc: "2×2 四合庭院，宜居度高，可升為宅邸" },
+    { id: "h3", n: "宅邸", c: 580, w: 3, d_len: 3, cap: 16, tax: 65, upTo: null, h: 30, r: 18, wCol: ["#f2e6cf", "#cfc2a7"], f: ["#3f5c6e", "#2d4352", "#517287"], d: "lan2", desc: "3×3 世家府邸，稅收豐厚，喜鄰園林水岸" }
+  ],
+  bridge: [
+    { id: "b_wood",  n: "木橋", c: 50,  w: 1, d_len: 1, spd: 1.1, cap: 4,  desc: "跨河木橋，造價低但載重有限" },
+    { id: "b_stone", n: "石拱橋", c: 110, w: 1, d_len: 1, spd: 1.9, cap: 12, stone: 2, desc: "堅固石橋，支援官道級繁重物流" },
+    { id: "b2",      n: "池塘小橋", c: 40, w: 1, d_len: 1, spd: 1.2, cap: 6, desc: "架於池塘之上，兼顧通行與園林雅趣" }
+  ],
+  farm: [
+    { id: "f1", n: "麥田", c: 90,  w: 1, d_len: 1, jobs: 2, bt: 12, rec: { in: {}, out: { wheat: 6 } }, syn: { f1: 0.08, c1: 0.15 }, desc: "連片種植或鄰近水井可增產" },
+    { id: "f2", n: "水田", c: 110, w: 1, d_len: 1, jobs: 2, bt: 14, rec: { in: {}, out: { rice: 5 } }, syn: { water: 0.25, c1: 0.15 }, desc: "產出稻米，緊鄰河水或水井產量 +25%" },
+    { id: "f3", n: "菜圃", c: 85,  w: 1, d_len: 1, jobs: 2, bt: 10, rec: { in: {}, out: { veg: 6 } }, syn: { c1: 0.15, f3: 0.08 }, desc: "供應新鮮蔬菜，需注意夏季保鮮" },
+    { id: "f4", n: "牧場", c: 150, w: 2, d_len: 2, jobs: 3, bt: 16, rec: { in: { wheat: 2 }, out: { meat: 5 } }, syn: { p1: 0.1 }, desc: "2×2 畜牧場，耗小麥產出肉類" },
+    { id: "f5", n: "茶園", c: 130, w: 1, d_len: 1, jobs: 2, bt: 15, rec: { in: {}, out: { tea: 4 } }, syn: { s2: 0.2, p5: 0.12 }, desc: "採摘春茗茶葉，鄰近茶坊相得益彰" },
+    { id: "f6", n: "藥圃", c: 140, w: 1, d_len: 1, jobs: 2, bt: 15, rec: { in: {}, out: { herb: 4 } }, syn: { w7: 0.2, c4: 0.15 }, desc: "種植道地草藥，供應藥坊煉製成藥" },
+    { id: "f7", n: "桑園", c: 145, w: 1, d_len: 1, jobs: 2, bt: 16, rec: { in: {}, out: { silk: 2 } }, syn: { w3: 0.25, water: 0.15 }, desc: "植桑養蠶，為織坊與絲綢提供原料" }
+  ],
+  shop: [
+    { id: "s1", n: "雜貨鋪", c: 120, w: 1, d_len: 1, h: 24, r: 14, wCol: ["#dbb88f", "#b99671"], f: ["#d1604a", "#a23f2b", "#e07a63"], d: "lan", jobs: 3, sell: ["pottery", "wood", "iron", "oil"], desc: "販售日用器物與燈油" },
+    { id: "s7", n: "麵食店", c: 160, w: 1, d_len: 1, h: 24, r: 14, wCol: ["#e6d3ae", "#c4b088"], f: ["#b0733a", "#8a5a2c", "#c98a4e"], d: "lan", jobs: 3, sell: ["noodle"], rec: { in: { flour: 4 }, out: { noodle: 12 } }, desc: "將麵粉製為熱騰騰麵食出售" },
+    { id: "s8", n: "生鮮市集", c: 220, w: 2, d_len: 2, h: 22, r: 13, wCol: ["#e3cfa8", "#c2ad86"], f: ["#568a5e", "#3e6945", "#6ba374"], d: "cloth", jobs: 4, sell: ["rice", "veg", "meat"], desc: "2×2 綜合菜市，集中供應米蔬肉食" },
+    { id: "s2", n: "茶坊", c: 140, w: 1, d_len: 1, h: 24, r: 14, wCol: ["#d9c9a0", "#b8a77d"], f: ["#4f7b6b", "#3a5c50", "#62917f"], d: "flag", jobs: 3, svc: 1, sell: ["tea"], syn: { f5: 0.2 }, desc: "品茗雅集之所，販售茶葉並提升社交" },
+    { id: "s4", n: "布莊綢緞行", c: 170, w: 1, d_len: 1, h: 24, r: 13, wCol: ["#e8dcc8", "#c9bb9f"], f: ["#3e5f8a", "#2f4a6c", "#5276a3"], d: "cloth", jobs: 3, sell: ["cloth", "silk"], syn: { w3: 0.2 }, desc: "經營布匹與高檔絲綢" },
+    { id: "s5", n: "藥鋪", c: 175, w: 1, d_len: 1, h: 24, r: 14, wCol: ["#d8cdb3", "#b7ab8f"], f: ["#6a7f4f", "#52643c", "#7f9663"], d: "sign", jobs: 3, svc: 1, sell: ["med"], syn: { w7: 0.2 }, desc: "坐堂問診並販售成藥" },
+    { id: "s6", n: "酒樓", c: 260, w: 2, d_len: 1, h: 36, r: 16, wCol: ["#e2b58c", "#bf9168"], f: ["#b8452e", "#8f3320", "#cf5c43"], d: "lan2", jobs: 4, bt: 28, sell: ["wine", "meat"], syn: { w5: 0.2 }, desc: "2×1 臨街酒樓，宴飲佳餚勝地" },
+    { id: "s9", n: "珍寶閣", c: 340, w: 2, d_len: 2, h: 32, r: 16, wCol: ["#e8d5b0", "#c4b08b"], f: ["#8a4b6e", "#693652", "#a65e86"], d: "lan2", jobs: 4, bt: 30, sell: ["jade", "silk"], syn: { w9: 0.25 }, desc: "2×2 奢華商號，專營玉器與錦緞" }
+  ],
+  work: [
+    { id: "w6", n: "磨坊", c: 170, w: 1, d_len: 1, h: 26, r: 12, wCol: ["#cfc2a6", "#aea286"], f: ["#6a6a5a", "#4f4f43", "#80806f"], d: "mill", jobs: 3, rec: { in: { wheat: 4 }, out: { flour: 6 } }, syn: { f1: 0.2 }, desc: "研磨小麥為麵粉，鄰近麥田提速 +20%" },
+    { id: "w8", n: "油坊", c: 185, w: 1, d_len: 1, h: 24, r: 12, wCol: ["#c9b48d", "#a6916b"], f: ["#8a6d3b", "#695129", "#a38349"], d: "jars", jobs: 3, rec: { in: { wheat: 2, veg: 2 }, out: { oil: 4 } }, desc: "壓榨燈油，冬季照明與民生必需" },
+    { id: "w10", n: "採石場", c: 190, w: 2, d_len: 2, h: 20, r: 10, wCol: ["#9ea3a6", "#7c8185"], f: ["#6b7073", "#505457", "#80868a"], d: "kiln", jobs: 4, rec: { in: {}, out: { stone: 5 } }, syn: { mountain: 0.3 }, desc: "2×2 採石工坊，產出石材（有噪音）" },
+    { id: "w1", n: "陶坊", c: 150, w: 1, d_len: 1, h: 22, r: 11, wCol: ["#bf9f7e", "#9c7f61"], f: ["#8a6650", "#684a38", "#9c7863"], d: "kiln", jobs: 3, rec: { in: {}, out: { pottery: 2 } }, desc: "燒製日常陶器" },
+    { id: "w2", n: "木作坊", c: 150, w: 1, d_len: 1, h: 22, r: 11, wCol: ["#c9ad82", "#a68b63"], f: ["#6f5a3f", "#54432e", "#836c4e"], d: "logs", jobs: 3, rec: { in: {}, out: { wood: 2 } }, syn: { forest: 0.25 }, desc: "伐木製器，鄰近山林產量 +25%" },
+    { id: "w3", n: "織造坊", c: 180, w: 1, d_len: 1, h: 22, r: 12, wCol: ["#e0d2b6", "#bfb094"], f: ["#8a5f7a", "#6c4960", "#a0768f"], d: "yarn", jobs: 3, rec: { in: {}, out: { cloth: 2 } }, syn: { f7: 0.25 }, desc: "紡紗織布，鄰近桑園提速 +25%" },
+    { id: "w4", n: "鐵鋪", c: 200, w: 1, d_len: 1, h: 22, r: 11, wCol: ["#a9a49a", "#878279"], f: ["#5b5f66", "#44474d", "#6e737b"], d: "anvil", jobs: 3, rec: { in: {}, out: { iron: 2 } }, desc: "鍛造農具與五金鐵器" },
+    { id: "w5", n: "釀酒坊", c: 220, w: 1, d_len: 1, h: 24, r: 12, wCol: ["#d3b891", "#b09670"], f: ["#7b5b3e", "#5e432d", "#8f6e4f"], d: "jars", jobs: 3, rec: { in: { rice: 2, wheat: 2 }, out: { wine: 3 } }, desc: "以米麥釀造陳年美酒" },
+    { id: "w7", n: "煉藥坊", c: 210, w: 1, d_len: 1, h: 24, r: 12, wCol: ["#d6ccb6", "#b5ab96"], f: ["#55704c", "#3e5437", "#69875f"], d: "kiln", jobs: 3, rec: { in: { herb: 3 }, out: { med: 3 } }, syn: { f6: 0.25 }, desc: "炮製草藥為成藥，提升全鎮健康" },
+    { id: "w9", n: "玉雕坊", c: 320, w: 2, d_len: 2, h: 26, r: 13, wCol: ["#d9e0d7", "#b5bdb3"], f: ["#4b7d6b", "#365e50", "#5e9682"], d: "anvil", jobs: 4, rec: { in: { stone: 3 }, out: { jade: 2 } }, syn: { w10: 0.25 }, desc: "2×2 精工玉作，琢石成玉（高附加值）" }
+  ],
+  civic: [
+    { id: "c1", n: "水井", c: 70, w: 1, d_len: 1, h: 12, r: 6, wCol: ["#9ea39e", "#7d827d"], f: ["#6b533b", "#4f3c29", "#82664a"], d: "well", jobs: 0, bt: 8, civic: "well", desc: "為周邊農田與民居提供水源" },
+    { id: "c2", n: "糧倉", c: 190, w: 2, d_len: 1, h: 26, r: 12, wCol: ["#cbb389", "#a68f68"], f: ["#7a5b3e", "#5c432c", "#916e4d"], d: "granary", jobs: 2, bt: 16, civic: "granary", desc: "2×1 大型倉儲，減緩全鎮生鮮腐敗 20%" },
+    { id: "c3", n: "消防局", c: 200, w: 1, d_len: 1, h: 24, r: 12, wCol: ["#c9886b", "#a3684e"], f: ["#9e3b2b", "#7a2b1e", "#b84937"], d: "fire", jobs: 3, bt: 16, civic: "fire", desc: "守護街坊防火安全" },
+    { id: "c4", n: "醫館", c: 220, w: 1, d_len: 1, h: 24, r: 13, wCol: ["#e3d9c3", "#bfb49d"], f: ["#4b7a5e", "#375c46", "#5e9474"], d: "sign", jobs: 3, bt: 18, civic: "clinic", desc: "救死扶傷，提升居民健康與壽命" },
+    { id: "c5", n: "巡檢司", c: 240, w: 1, d_len: 1, h: 26, r: 13, wCol: ["#9ea6ad", "#7c848a"], f: ["#3d4f63", "#2b3947", "#4e647d"], d: "flag", jobs: 4, bt: 18, civic: "patrol", desc: "維持街市治安秩序" },
+    { id: "c6", n: "縣衙", c: 420, w: 3, d_len: 3, h: 34, r: 17, wCol: ["#d4c6ab", "#b0a287"], f: ["#384a45", "#273632", "#485e58"], d: "lan2", jobs: 5, bt: 26, civic: "yamen", desc: "3×3 地方行政中樞，全面提升治理效率" }
+  ],
+  culture: [
+    { id: "u1", n: "戲台", c: 190, w: 2, d_len: 1, h: 22, r: 14, wCol: ["#d9a87c", "#b5855b"], f: ["#b54434", "#8a3124", "#cc5543"], d: "lan2", jobs: 3, bt: 16, edu: 12, desc: "2×1 民俗戲台，大幅提升周邊幸福" },
+    { id: "u2", n: "書院", c: 260, w: 2, d_len: 2, h: 26, r: 14, wCol: ["#e6dec8", "#c2b9a3"], f: ["#4c695d", "#374f45", "#5f8072"], d: "sign", jobs: 4, bt: 20, edu: 24, desc: "2×2 講學書院，加速工匠晉升" },
+    { id: "u3", n: "藏書閣", c: 320, w: 1, d_len: 1, h: 34, r: 15, wCol: ["#cbb89d", "#a6947b"], f: ["#5a4b6e", "#433754", "#6f5d87"], d: "flag", jobs: 3, bt: 24, edu: 28, desc: "典藏經史典籍，提升文教底蘊" },
+    { id: "u4", n: "文廟", c: 450, w: 3, d_len: 3, h: 34, r: 18, wCol: ["#e0c28b", "#ba9c66"], f: ["#b88328", "#8f631b", "#cf9838"], d: "lan2", jobs: 4, bt: 28, edu: 38, desc: "3×3 禮樂聖殿，教化萬民" }
+  ],
+  park: [
+    { id: "p1", n: "垂柳", c: 60, w: 1, d_len: 1, k: "willow", bt: 6, desc: "河畔垂柳，美化環境並降噪" },
+    { id: "p2", n: "花圃", c: 50, w: 1, d_len: 1, k: "flower", bt: 6, desc: "四時花卉，賞心悅目" },
+    { id: "p3", n: "池塘", c: 90, w: 1, d_len: 1, k: "pond", bt: 8, desc: "碧水游魚，可架設池塘小橋" },
+    { id: "p4", n: "涼亭", c: 140, w: 1, d_len: 1, k: "pavilion", bt: 10, desc: "休憩涼亭，兼具道路連通功能" },
+    { id: "p5", n: "竹林", c: 70, w: 1, d_len: 1, k: "bamboo", bt: 6, desc: "清幽翠竹，有效隔絕作坊噪音" },
+    { id: "p6", n: "假山", c: 110, w: 1, d_len: 1, k: "rock", bt: 8, desc: "太湖石假山，提升宅邸魅力" }
+  ],
+  zone: [
+    { id: "z_res", n: "居住區", c: 0, color: "rgba(76, 166, 108, 0.34)", stroke: "#2e7d4b", desc: "住宅區劃，民居幸福 +4%" },
+    { id: "z_com", n: "商業區", c: 0, color: "rgba(219, 154, 48, 0.34)", stroke: "#9c6711", desc: "市集區劃，商鋪營收 +12%" },
+    { id: "z_ind", n: "工業區", c: 0, color: "rgba(158, 98, 64, 0.34)", stroke: "#6e3f24", desc: "百工區劃，作坊產速 +15%" },
+    { id: "z_agr", n: "農業區", c: 0, color: "rgba(138, 179, 68, 0.34)", stroke: "#557521", desc: "農桑區劃，農田產速 +15%" },
+    { id: "z_eco_jn", n: "整地·水鄉", c: 35, color: "rgba(86, 168, 156, 0.34)", stroke: "#2c786c", biome: "meadow", desc: "開渠引水（35文/格），適合稻茶桑" },
+    { id: "z_eco_mt", n: "整地·山麓", c: 45, color: "rgba(130, 126, 112, 0.36)", stroke: "#595548", biome: "mountain", desc: "堆石成阜（45文/格），適合採石藥材" },
+    { id: "z_eco_fr", n: "整地·林野", c: 30, color: "rgba(95, 148, 72, 0.34)", stroke: "#3b6928", biome: "forest", desc: "植樹造林（30文/格），適合木作牧場" },
+    { id: "z_clr", n: "清除區劃", c: 0, color: "rgba(200, 200, 200, 0.25)", stroke: "#666", desc: "移除行政區劃標記" }
+  ]
+};
+const TY = {}; Object.keys(CAT).forEach(c => CAT[c].forEach(v => { v.cat = c; TY[v.id] = v; }));
+const TOOLS = [["look", "探索"], ["road", "鋪路"], ["bridge", "橋樑"], ["zone", "區劃"], ["house", "民居"], ["farm", "農田"], ["shop", "商鋪"], ["work", "作坊"], ["civic", "公建"], ["culture", "文教"], ["park", "園景"], ["del", "拆除"]];
+
+// ============================================================
+// 4. 區塊化世界與多格建築佔位系統
+// ============================================================
+const chunks = new Map();
+const cKey = (cx, cy) => cx + "," + cy;
+const lKey = (x, y) => (((y % CH) + CH) % CH) * CH + (((x % CH) + CH) % CH);
+const cOf = (x, y) => [Math.floor(x / CH), Math.floor(y / CH)];
+function newChunk(cx, cy) { return { cx, cy, roads: new Map(), traffic: new Map(), bm: new Map(), zones: new Map(), biomeOv: new Map(), terrain: null }; }
+
+function getZone(x, y) { if (!inW(x, y)) return null; const c = getChunk(...cOf(x, y), false); return (c && c.zones) ? c.zones.get(lKey(x, y)) || null : null; }
+function setZone(x, y, z) { if (!inW(x, y) || isW(x, y)) return; const c = getChunk(...cOf(x, y), true); if (!c.zones) c.zones = new Map(); if (!z || z === "z_clr") c.zones.delete(lKey(x, y)); else c.zones.set(lKey(x, y), z); }
+
+function getChunk(cx, cy, create) { const k = cKey(cx, cy); let c = chunks.get(k); if (!c && create) { c = newChunk(cx, cy); chunks.set(k, c); } return c; }
+function getRoadType(x, y) { if (!inW(x, y)) return null; const c = getChunk(...cOf(x, y), false); return c ? c.roads.get(lKey(x, y)) || null : null; }
+function hasRoad(x, y) { return !!getRoadType(x, y); }
+function addRoad(x, y, rt) { if (!inW(x, y)) return; const c = getChunk(...cOf(x, y), true); c.roads.set(lKey(x, y), rt || "r_stone"); }
+function delRoad(x, y) { const c = getChunk(...cOf(x, y), false); if (c) { c.roads.delete(lKey(x, y)); if (c.traffic) c.traffic.delete(lKey(x, y)); } }
+function addTraffic(x, y, amt) { const c = getChunk(...cOf(x, y), false); if (c && c.roads.has(lKey(x, y))) { if (!c.traffic) c.traffic = new Map(); const l = lKey(x, y); c.traffic.set(l, Math.min(30, (c.traffic.get(l) || 0) + amt)); } }
+function getTraffic(x, y) { const c = getChunk(...cOf(x, y), false); return (c && c.traffic) ? (c.traffic.get(lKey(x, y)) || 0) : 0; }
+
+// 建築尺寸與旋轉輔助：dir 0=南(+y), 1=東(+x), 2=北(-y), 3=西(-x)
+function getDims(T, dir) {
+  const w0 = T.w || 1, d0 = T.d_len || 1;
+  return (dir % 2 === 1) ? [d0, w0] : [w0, d0];
+}
+function getFootprint(x, y, T, dir) {
+  const [bw, bh] = getDims(T, dir || 0);
+  const cells = [];
+  for (let dy = 0; dy < bh; dy++) for (let dx = 0; dx < bw; dx++) cells.push([x + dx, y + dy]);
+  return cells;
+}
+
+// 取得建築主體（支援多格佔位回溯到 anchor）
+function getB(x, y) {
+  if (!inW(x, y)) return null;
+  const c = getChunk(...cOf(x, y), false);
+  const v = c ? c.bm.get(lKey(x, y)) || null : null;
+  if (!v) return null;
+  if (v._ref) return getB(v.ax, v.ay);
+  return v;
+}
+function setB(x, y, b) {
+  const T = TY[b.t];
+  const cells = getFootprint(x, y, T, b.dir || 0);
+  cells.forEach(([cx0, cy0], idx) => {
+    const c = getChunk(...cOf(cx0, cy0), true);
+    if (idx === 0) c.bm.set(lKey(cx0, cy0), b);
+    else c.bm.set(lKey(cx0, cy0), { _ref: true, ax: x, ay: y });
+  });
+}
+function delB(x, y) {
+  const b = getB(x, y);
+  if (!b) return;
+  const T = TY[b.t];
+  const cells = getFootprint(b.x, b.y, T, b.dir || 0);
+  cells.forEach(([cx0, cy0]) => {
+    const c = getChunk(...cOf(cx0, cy0), false);
+    if (c) c.bm.delete(lKey(cx0, cy0));
+  });
+}
+function forEachB(fn) { chunks.forEach(c => c.bm.forEach(b => { if (!b._ref) fn(b, c); })); }
+function allBuildings() { const a = []; forEachB(b => a.push(b)); return a; }
+function countB() { let n = 0; chunks.forEach(c => c.bm.forEach(b => { if (!b._ref) n++; })); return n; }
+function forEachRoad(fn) { chunks.forEach(c => c.roads.forEach((rt, l) => { fn(c.cx * CH + (l % CH), c.cy * CH + Math.floor(l / CH), rt); })); }
+const bm = {
+  get(k) { return getB(k % N, (k / N) | 0); }, set(k, b) { setB(k % N, (k / N) | 0, b); },
+  delete(k) { delB(k % N, (k / N) | 0); }, has(k) { return !!getB(k % N, (k / N) | 0); },
+  forEach(fn) { forEachB(fn); }, get size() { return countB(); }
+};
+
+// ============================================================
+// 5. 四大世界地形生成與局內整地改造
+// ============================================================
+let worldRegion = "jiangnan";
+function hash2(x, y, s) { let h = (x * 374761393 + y * 668265263 + s * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+function vnoise(x, y, s) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi; const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = hash2(xi, yi, s), b = hash2(xi + 1, yi, s), c = hash2(xi, yi + 1, s), d = hash2(xi + 1, yi + 1, s); return a * (1 - u) * (1 - v) + b * u * (1 - v) + c * (1 - u) * v + d * u * v; }
+function fbm(x, y, s, oct) { let sum = 0, amp = .5, f = 1; for (let i = 0; i < oct; i++) { sum += amp * vnoise(x * f, y * f, s + i); amp *= .5; f *= 2; } return sum; }
+const BIOME = { river: 0, water: 1, mountain: 2, forest: 3, plain: 4, meadow: 5 };
+const BIOME_KEYS = Object.keys(BIOME);
+
+function genChunk(cx, cy) {
+  const c = getChunk(cx, cy, true); if (c.terrain) return c.terrain;
+  const t = { tiles: new Uint8Array(CH * CH) };
+  for (let ly = 0; ly < CH; ly++) for (let lx = 0; lx < CH; lx++) {
+    const x = cx * CH + lx, y = cy * CH + ly;
+    const riverDist = x < RX ? RX - x : x >= RX + 2 ? x - (RX + 1) : 0;
+    let h = fbm(x * .015, y * .015, 1, 4) * .7 + fbm(x * .05, y * .05, 3, 3) * .3;
+    const mA = fbm(x * .008 + 40, y * .008, 5, 4);
+    if (worldRegion === "mountain") h += 0.24 + mA * 0.55;
+    else if (worldRegion === "north") h = h * 0.72 + 0.12;
+    else if (worldRegion === "eastsea") h = h * 0.85 - 0.04;
+    else if (x > RX + 30) h += mA * .8;
+
+    let b;
+    if (x >= RX && x < RX + 2) b = BIOME.water;
+    else if (riverDist <= 1) b = BIOME.river;
+    else if (h > .80) b = BIOME.mountain;
+    else if (h > .60) b = BIOME.forest;
+    else if (h > .42) b = BIOME.plain;
+    else b = BIOME.meadow;
+    t.tiles[ly * CH + lx] = b;
+  }
+  c.terrain = t; return t;
+}
+function terrainAt(x, y) {
+  if (!inW(x, y)) return "meadow";
+  const [cx, cy] = cOf(x, y); const c = getChunk(cx, cy, false);
+  if (c && c.biomeOv && c.biomeOv.has(lKey(x, y))) return c.biomeOv.get(lKey(x, y));
+  if (!c || !c.terrain) return null;
+  return BIOME_KEYS[c.terrain.tiles[(((y % CH) + CH) % CH) * CH + (((x % CH) + CH) % CH)]];
+}
+function setTerrainOverride(x, y, biomeName) {
+  if (!inW(x, y) || isW(x, y)) return;
+  const c = getChunk(...cOf(x, y), true);
+  if (!c.biomeOv) c.biomeOv = new Map();
+  c.biomeOv.set(lKey(x, y), biomeName);
+}
+
+// ============================================================
+// 6. 連通、道路與相鄰建築加成計算
+// ============================================================
+let conn = new Set(), CR = [];
+function calcConn() {
+  conn = new Set(); CR = []; const q = [];
+  forEachRoad((x, y) => {
+    if (x === RX - 1) {
+      const k = K(x, y);
+      if (!conn.has(k)) { conn.add(k); q.push([x, y]); }
+    }
+  });
+  let head = 0;
+  while (head < q.length) {
+    const [x, y] = q[head++];
+    CR.push(K(x, y));
+    for (const d of D4) {
+      const a = x + d[0], b = y + d[1], k = K(a, b);
+      if (!hasRoad(a, b) || conn.has(k)) continue;
+      conn.add(k); q.push([a, b]);
+    }
+  }
+}
+
+// 檢查多格建築是否有任一邊緣緊鄰已連通河岸的道路
+function buildingAdjRoads(x, y, T, dir) {
+  const cells = getFootprint(x, y, T, dir || 0);
+  const set = new Set(cells.map(c => K(c[0], c[1])));
+  const adj = [];
+  cells.forEach(([cx0, cy0]) => {
+    for (const d of D4) {
+      const nx = cx0 + d[0], ny = cy0 + d[1], nk = K(nx, ny);
+      if (set.has(nk)) continue;
+      if (hasRoad(nx, ny) && conn.has(nk)) adj.push([nx, ny]);
+    }
+  });
+  return adj;
+}
+const roadAdjFootprint = (x, y, T, dir) => buildingAdjRoads(x, y, T, dir).length > 0;
+const ok = b => TY[b.t].cat === "park" || roadAdjFootprint(b.x, b.y, TY[b.t], b.dir || 0);
+
+// 計算單棟建築的相鄰加成總倍率
+function getSynergyBonus(b) {
+  const T = TY[b.t];
+  if (!T.syn) return { mult: 1.0, details: [] };
+  const cells = getFootprint(b.x, b.y, T, b.dir || 0);
+  const visited = new Set(cells.map(c => K(c[0], c[1])));
+  let bonus = 0;
+  const details = [];
+  cells.forEach(([cx0, cy0]) => {
+    for (const d of D4) {
+      const nx = cx0 + d[0], ny = cy0 + d[1], nk = K(nx, ny);
+      if (visited.has(nk)) continue;
+      visited.add(nk);
+      if (isW(nx, ny) && T.syn.water) {
+        bonus += T.syn.water;
+        details.push("臨河水 +" + Math.round(T.syn.water * 100) + "%");
+      }
+      const bio = terrainAt(nx, ny);
+      if (bio && T.syn[bio]) {
+        bonus += T.syn[bio];
+        details.push("鄰地貌 +" + Math.round(T.syn[bio] * 100) + "%");
+      }
+      const nb = getB(nx, ny);
+      if (nb && nb.p >= 1 && T.syn[nb.t]) {
+        bonus += T.syn[nb.t];
+        details.push("鄰" + TY[nb.t].n + " +" + Math.round(T.syn[nb.t] * 100) + "%");
+      }
+    }
+  });
+  return { mult: +(1 + Math.min(0.8, bonus)).toFixed(2), details };
+}
+
+// ============================================================
+// 7. 全域狀態與政務政策
+// ============================================================
+const $ = s => document.querySelector(s);
+const cv = $("#cv"), cx = cv.getContext("2d");
+let S = { m: 2800, t: 120, rp: 0 }, speed = 1, paused = false, tool = "road", acc = 0, Z = 1, cam = { x: 0, y: 0 };
+let ECO = { food: 0, hap: 50, pop: 0, jobs: 0, employed: 0, biz: 0, sat: {} }, SUP = {}, SL = {}, TGT = {}, ecoOpen = false;
+let hov = null, VW = 0, VH = 0, DPR = 1, introOpen = false, cardB = null, resCardR = null;
+let buildDir = 0; // 0:南, 1:東, 2:北, 3:西
+let sel = { road: "r_stone", bridge: "b_stone", zone: "z_res", house: "h1", farm: "f1", shop: "s1", work: "w6", civic: "c1", culture: "u1", park: "p1" };
+let govOpen = false, pediaOpen = false, pediaTab = "all";
+let zoneBoxStart = null;
+let policy = { taxTier: 1, eduTier: 1, foodTier: 1, patrolTier: 1 };
+const TAX_RATES = [0.15, 0.30, 0.45];
+const EDU_COSTS = [0, 25, 65];
+const FOOD_RESERVE_RATES = [0.10, 0.25, 0.45];
+
+const JOB_TIERS = {
+  w2: ["木工學徒", "熟練木匠", "工坊師傅"], w1: ["陶藝學徒", "熟練陶匠", "窯場宗師"],
+  w3: ["紡織學徒", "熟練織工", "錦繡名師"], w4: ["打鐵學徒", "熟練鐵匠", "鑄造大師"],
+  w5: ["釀酒學徒", "熟練酒師", "酒坊掌櫃"], w6: ["磨坊幫工", "熟練磨師", "糧坊總管"],
+  w8: ["榨油幫工", "熟練油師", "油坊掌櫃"], w9: ["琢玉學徒", "熟練玉匠", "琢玉宗師"],
+  w10: ["採石工", "熟練石匠", "石作都料"], default: ["初階學徒", "熟練匠役", "資深師傅"]
+};
+function getCareerRank(r) {
+  const sk = r.skill || 0;
+  const tierIdx = sk >= 65 ? 2 : sk >= 28 ? 1 : 0;
+  const mult = tierIdx === 2 ? 1.35 : tierIdx === 1 ? 1.15 : 1.0;
+  const jb = r.jobKey != null ? bm.get(r.jobKey) : null;
+  const names = (jb && JOB_TIERS[jb.t]) ? JOB_TIERS[jb.t] : JOB_TIERS.default;
+  return { tierIdx, title: names[tierIdx], mult };
+}
+function getBuildingQualityMult(b) {
+  const ws = (b.workers || []).map(id => residents.get(id)).filter(Boolean);
+  if (!ws.length) return 1.0;
+  return +(ws.reduce((s, r) => s + getCareerRank(r).mult, 0) / ws.length).toFixed(2);
+}
+
+function getCivicStats() {
+  let wells = 0, granaries = 0, fires = 0, clinics = 0, patrols = 0, yamens = 0, eduPts = 0;
+  forEachB(b => {
+    if (b.p < 1 || !ok(b)) return;
+    const T = TY[b.t];
+    if (T.civic === "well") wells++;
+    else if (T.civic === "granary") granaries++;
+    else if (T.civic === "fire") fires++;
+    else if (T.civic === "clinic") clinics++;
+    else if (T.civic === "patrol") patrols++;
+    else if (T.civic === "yamen") yamens++;
+    if (T.edu) eduPts += T.edu;
+  });
+  const pop = Math.max(1, residents.size);
+  const eduRate = Math.min(100, Math.round((eduPts + policy.eduTier * 12) / Math.max(12, pop * 1.4) * 100));
+  const security = Math.min(100, Math.max(15, 35 + patrols * 18 + yamens * 15 + policy.patrolTier * 14 - Math.floor(pop * 0.4)));
+  const fireSafety = Math.min(100, 30 + fires * 25 + wells * 10);
+  const health = Math.min(100, 40 + clinics * 22 + wells * 8);
+  const granaryCap = 60 + granaries * 80;
+  return { wells, granaries, fires, clinics, patrols, yamens, eduRate, security, fireSafety, health, granaryCap };
+}
+
+function calcHouseNoise(hx, hy) {
+  let noise = 0;
+  for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
+    const dist = Math.abs(dx) + Math.abs(dy);
+    if (dist === 0 || dist > 4) continue;
+    const nb = getB(hx + dx, hy + dy);
+    if (nb && nb.p >= 1 && TY[nb.t].cat === "work") noise += (5 - dist) * (nb.t === "w10" ? 6 : 3.5);
+    else if (getZone(hx + dx, hy + dy) === "z_ind") noise += (5 - dist) * 1.5;
+    if (nb && nb.p >= 1 && TY[nb.t].cat === "park") noise = Math.max(0, noise - 2.5);
+  }
+  return Math.min(45, Math.round(noise));
+}
+
+let bridges = new Map(); // K -> "b_wood" | "b_stone"
+let townStage = 0, chronicle = [], milestones = {};
+let rosterOpen = false, chronOpen = false, stageOpen = false, wxOpen = false, obsMode = false;
+let seasonAuto = true, seasonManual = 0, seasonDays = 10;
+let weatherAuto = true, weatherId = "clear", weatherTimer = 180;
+let lightningAlpha = 0, nextLightning = 12;
+let activeEvent = null, activeChain = null, eventCooldown = 190, chainCooldown = 260, wetAccum = 0, dockSilted = false;
+const wxParticles = [];
+for (let i = 0; i < 160; i++) wxParticles.push({ x: Math.random(), y: Math.random(), z: 0.5 + Math.random() * 0.9, ph: Math.random() * 6.28 });
+
+function getCurSeason() { if (!seasonAuto) return seasonManual; const day = Math.floor(S.t / 360); return Math.floor(day / seasonDays) % 4; }
+function getCurWeather() { return WX_MAP[weatherId] || WEATHERS[0]; }
+function rollNaturalWeather(sIdx) {
+  const r = Math.random();
+  if (sIdx === 0) return r < 0.42 ? "clear" : r < 0.68 ? "cloudy" : r < 0.92 ? "rain" : "fog";
+  if (sIdx === 1) return r < 0.45 ? "clear" : r < 0.68 ? "cloudy" : r < 0.86 ? "rain" : "storm";
+  if (sIdx === 2) return r < 0.48 ? "clear" : r < 0.76 ? "cloudy" : r < 0.90 ? "fog" : "rain";
+  return r < 0.34 ? "clear" : r < 0.56 ? "cloudy" : r < 0.90 ? "snow" : "fog";
+}
+function updateWxBadge() { const s = SEASONS[getCurSeason()], w = getCurWeather(), el = $("#wxBadge"); if (el) el.textContent = s.name + "・" + w.icon + w.name + " ▾"; }
+function updateRegBadge() { const reg = REGIONS[worldRegion] || REGIONS.jiangnan; const el = $("#regBadge"); if (el) el.textContent = reg.name; }
+
+let obsAngle = 0, obsTarget = null, obsTimer = 0;
+const STAGES = [
+  { name: "荒野聚落", desc: "河畔初闢，炊煙初起（初始規模）", req: {} },
+  { name: "繁榮村落", desc: "人口 ≥ 8、糧食 ≥ 15、農田 ≥ 1、商鋪或作坊 ≥ 1", req: { pop: 8, food: 15, shopsOrWorks: 1, farms: 1 } },
+  { name: "商業城鎮", desc: "人口 ≥ 20、糧食 ≥ 45、鎮庫 ≥ 900、商鋪 ≥ 2、作坊 ≥ 2", req: { pop: 20, food: 45, money: 900, shops: 2, works: 2 } },
+  { name: "繁華都會", desc: "人口 ≥ 45、糧食 ≥ 90、幸福 ≥ 70%、鎮庫 ≥ 2200、商鋪 ≥ 4、作坊 ≥ 3、園景 ≥ 3", req: { pop: 45, food: 90, hap: 70, money: 2200, shops: 4, works: 3, parks: 3 } }
+];
+function getTownMetrics() {
+  let shops = 0, works = 0, farms = 0, parks = 0;
+  forEachB(b => { if (b.p < 1 || !ok(b)) return; const cat = TY[b.t].cat; if (cat === "shop") shops++; else if (cat === "work") works++; else if (cat === "farm") farms++; else if (cat === "park") parks++; });
+  return { pop: residents.size, food: Math.floor(ECO.food || 0), hap: Math.round(ECO.hap || 0), money: Math.floor(S.m || 0), shops, works, farms, parks };
+}
+function addChronicle(tag, text, key) { if (key) { if (milestones[key]) return; milestones[key] = 1; } const day = Math.floor(S.t / 360) + 1; chronicle.push({ day, tag, text }); if (chronicle.length > 120) chronicle.shift(); }
+function evalTownStage() {
+  const m = getTownMetrics(); let nextStage = 0;
+  if (m.pop >= 45 && m.food >= 90 && m.hap >= 70 && m.money >= 2200 && m.shops >= 4 && m.works >= 3 && m.parks >= 3) nextStage = 3;
+  else if (m.pop >= 20 && m.food >= 45 && m.money >= 900 && m.shops >= 2 && m.works >= 2) nextStage = 2;
+  else if (m.pop >= 8 && m.food >= 15 && (m.shops + m.works) >= 1 && m.farms >= 1) nextStage = 1;
+  if (nextStage > townStage) { townStage = nextStage; const st = STAGES[townStage]; addChronicle("晉升", "小鎮規模日盛，正式晉升為「" + st.name + "」！"); say("🎉 城鎮晉升為「" + st.name + "」！"); }
+  const badge = $("#stageBadge"); if (badge) badge.textContent = STAGES[townStage].name + " ▾";
+}
+
+// ============================================================
+// 8. 居民與物流尋路（含道路速度與壅塞度模擬）
+// ============================================================
+const SURNAME = "王李張劉陳楊黃趙吳周徐孫馬朱胡郭何高林羅鄭梁謝宋唐許韓馮鄧曹彭曾蕭田董潘袁蔡蔣余杜葉程蘇魏呂丁任沈姚盧姜崔鍾譚陸汪范金石廖賈夏韋付方白鄒孟熊秦邱江尹薛閻段雷侯龍史陶黎賀顧毛郝龔邵萬錢嚴武戴莫孔湯龐樊殷施洪翟顏倪牛溫蘆季俞章魯葛伍申尤畢聶焦向柳邢路岳齊沿梅塗".split("");
+const MALE_NAME1 = "清和望映子文思景承立明志遠懷安書言知墨".split("");
+const MALE_NAME2 = "山雪風川雲松軒然之亦青嵐庭舟".split("");
+const FEMALE_NAME1 = "婉映清語念柔月書知".split("");
+const FEMALE_NAME2 = "娘雪蘭荷花月雲霞玉珍婉兒".split("");
+function randOf(a) { return a[Math.random() * a.length | 0]; }
+function genName(gender) { const s = randOf(SURNAME); return gender === "f" ? s + randOf(FEMALE_NAME1) + randOf(FEMALE_NAME2) : s + randOf(MALE_NAME1) + randOf(MALE_NAME2); }
+
+const residents = new Map(), households = new Map();
+let nextId = 1, nextHouseId = 1, activeResidents = new Set(), aiAcc = 0, aiInterval = 0, pathFailCount = 0;
+
+function mkResident(opts) {
+  const id = nextId++, gender = opts.gender || (Math.random() < .5 ? "m" : "f"), age = opts.age != null ? opts.age : 16 + Math.random() * 20 | 0;
+  const r = { id, name: opts.name || genName(gender), gender, age, born: S.t - age * 360, familyId: opts.familyId || null, houseKey: opts.houseKey || null, jobKey: null, jobT: 0, skill: 0, wallet: opts.wallet != null ? opts.wallet : 50 + Math.random() * 60 | 0, needs: { hun: 65 + Math.random() * 35, fat: 65 + Math.random() * 35, joy: 55 + Math.random() * 45, soc: 55 + Math.random() * 45 }, mood: 65 + Math.random() * 25, rel: { parent: opts.parent || null, spouse: null, children: [] }, log: [], x: 0, y: 0, state: "idle", timer: 0, target: null, path: null, pathIndex: 0, afterMove: "idle" };
+  if (opts.log !== false) r.log.push("第" + (Math.floor(S.t / 360) + 1) + "日 遷入小鎮");
+  residents.set(id, r); return r;
+}
+function mkHousehold(homeKey) { const id = nextHouseId++; households.set(id, { id, homeKey, members: [], wallet: 0 }); return id; }
+const HOME_SPOTS = [[.28,.32],[.72,.32],[.28,.68],[.72,.68],[.5,.5],[.5,.22]];
+function placeResidentAtHome(r, b, index) { if (!r || !b) return; const spot = HOME_SPOTS[(index || 0) % HOME_SPOTS.length]; r.x = b.x + spot[0]; r.y = b.y + spot[1]; }
+
+function populateHouse(b) {
+  if (!b.hk) b.hk = mkHousehold(K(b.x, b.y));
+  const hh = households.get(b.hk); if (!hh || hh.members.length > 0) return;
+  const male = Math.random() < .5;
+  const a = mkResident({ gender: male ? "m" : "f", age: 20 + Math.random() * 15 | 0, familyId: hh.id, houseKey: K(b.x, b.y), wallet: 85 + Math.random() * 70 | 0 });
+  const bb = mkResident({ gender: male ? "f" : "m", age: 18 + Math.random() * 15 | 0, familyId: hh.id, houseKey: K(b.x, b.y), wallet: 70 + Math.random() * 60 | 0 });
+  a.rel.spouse = bb.id; bb.rel.spouse = a.id;
+  hh.members.push(a.id, bb.id);
+  placeResidentAtHome(a, b, 0); placeResidentAtHome(bb, b, 1);
+  b.workers = b.workers || [];
+  addChronicle("遷入", a.name + "與" + bb.name + "夫婦遷入河畔小鎮定居。", "first_resident");
+  if (residents.size >= 10) addChronicle("人口", "全鎮人口首度突破 10 人。", "pop_10");
+  if (residents.size >= 25) addChronicle("人口", "全鎮人口突破 25 人，街巷漸趨熱鬧。", "pop_25");
+  if (residents.size >= 50) addChronicle("人口", "全鎮人口突破 50 人，已成一方重鎮。", "pop_50");
+  syncRp();
+}
+
+function collectDailyTax() {
+  let taxTotal = 0;
+  forEachB(b => {
+    if (b.p < 1 || !ok(b)) return;
+    const T = TY[b.t];
+    if (T.cat === "house") {
+      const hh = b.hk ? households.get(b.hk) : null;
+      if (hh && hh.members.length > 0) taxTotal += hh.members.length * (T.tax || 10);
+    } else if (T.cat === "shop" || T.cat === "work") taxTotal += 40;
+    else if (T.cat === "farm") taxTotal += 20;
+  });
+  if (taxTotal > 0) S.m += taxTotal;
+}
+
+function bgDay() {
+  const day = Math.floor(S.t / 360);
+  const all = Array.from(residents.values());
+  const jobCache = allBuildings().filter(b => b.p >= 1 && TY[b.t].jobs && ok(b));
+  for (let i = 0; i < all.length; i++) {
+    const r = all[i];
+    if (S.t - r.born > (r.age + 1) * 360) { r.age++; if (r.age === 18) r.log.push("第" + (day + 1) + "日 成年"); }
+    if (r.age > 62 + Math.random() * 28) { killResident(r, "年老"); continue; }
+    r.needs.hun -= 4; r.needs.fat -= 3; r.needs.joy -= 2; r.needs.soc -= 2;
+    if (r.needs.hun < 20 && Math.random() < .5) r.mood -= 4;
+    if (!r.jobKey) {
+      const opened = jobCache.filter(b => (b.workers || []).length < (TY[b.t].jobs || 0));
+      if (opened.length && Math.random() < .45) {
+        const j = randOf(opened); j.workers = j.workers || [];
+        if (j.workers.length < (TY[j.t].jobs || 0)) { j.workers.push(r.id); r.jobKey = K(j.x, j.y); r.log.push("第" + (day + 1) + "日 在" + TY[j.t].n + "工作"); }
+      }
+    } else {
+      const jb = bm.get(r.jobKey);
+      if (jb && ok(jb)) {
+        const basePay = 13 + Math.floor((r.skill || 0) / 10);
+        const paid = Math.min(Math.max(0, jb.cash || 0), basePay);
+        jb.cash = Math.max(0, (jb.cash || 0) - paid);
+        r.wallet = (r.wallet || 0) + paid;
+        const cStats = getCivicStats();
+        r.skill = Math.min(100, (r.skill || 0) + 0.6 + (cStats.eduRate / 100) * 1.4 + policy.eduTier * 0.35);
+      } else r.jobKey = null;
+    }
+    if (r.rel.spouse && r.age >= 20 && r.age <= 40 && Math.random() < .02) {
+      const hh = households.get(r.familyId), hb = r.houseKey != null ? bm.get(r.houseKey) : null;
+      const maxCap = hb ? (TY[hb.t].cap || 4) : 4;
+      if (hh && hh.members.length < maxCap) {
+        const child = mkResident({ age: 0, familyId: hh.id, houseKey: r.houseKey, parent: r.id, wallet: 10, gender: Math.random() < .5 ? "m" : "f" });
+        hh.members.push(child.id);
+        placeResidentAtHome(child, hb, hh.members.length - 1);
+        r.rel.children.push(child.id);
+        const sp = residents.get(r.rel.spouse); if (sp) sp.rel.children.push(child.id);
+        r.log.push("第" + (day + 1) + "日 孩子" + child.name + "出生");
+        addChronicle("新生", r.name + "家中喜添新丁「" + child.name + "」。", "first_birth");
+      }
+    }
+    if (r.mood < 20 && !r.jobKey && Math.random() < .01) leaveResident(r, "遷出");
+  }
+  const vacant = allBuildings().filter(b => TY[b.t].cat === "house" && b.p >= 1 && ok(b) && (!b.hk || !households.get(b.hk) || households.get(b.hk).members.length === 0));
+  vacant.forEach(b => {
+    const attractProb = ECO.hap >= 55 ? .45 : ECO.hap >= 35 ? .25 : .12;
+    if (Math.random() < attractProb) populateHouse(b);
+  });
+  syncRp();
+}
+function killResident(r) {
+  const hh = households.get(r.familyId);
+  if (hh && (r.wallet || 0) > 0) {
+    const heirs = hh.members.filter(id => id !== r.id).map(id => residents.get(id)).filter(Boolean);
+    if (heirs.length) { const share = r.wallet / heirs.length; heirs.forEach(h => { h.wallet = (h.wallet || 0) + share; }); }
+  }
+  residents.delete(r.id); activeResidents.delete(r.id);
+  if (hh) { const i = hh.members.indexOf(r.id); if (i >= 0) hh.members.splice(i, 1); }
+  if (r.jobKey != null) { const jb = bm.get(r.jobKey); if (jb && jb.workers) { const i = jb.workers.indexOf(r.id); if (i >= 0) jb.workers.splice(i, 1); } }
+  syncRp();
+}
+function leaveResident(r, why) {
+  if (!r) return;
+  if (r.log) r.log.push("第" + (Math.floor(S.t / 360) + 1) + "日 " + why);
+  residents.delete(r.id); activeResidents.delete(r.id);
+  const hh = households.get(r.familyId); if (hh) { const i = hh.members.indexOf(r.id); if (i >= 0) hh.members.splice(i, 1); }
+  if (r.jobKey != null) { const jb = bm.get(r.jobKey); if (jb && jb.workers) { const i = jb.workers.indexOf(r.id); if (i >= 0) jb.workers.splice(i, 1); } }
+  syncRp();
+}
+
+function nearestRoad(x, y) {
+  if (conn.has(K(x, y))) return [x, y];
+  for (const d of D4) { const a = x + d[0], b = y + d[1]; if (conn.has(K(a, b))) return [a, b]; }
+  return null;
+}
+function buildingRoad(b) {
+  if (!b) return null;
+  const adj = buildingAdjRoads(b.x, b.y, TY[b.t], b.dir || 0);
+  return adj.length ? adj[0] : null;
+}
+function findPath(sx, sy, tx, ty) {
+  const sk = K(sx, sy), gk = K(tx, ty);
+  if (!conn.has(sk) || !conn.has(gk)) return null;
+  if (sk === gk) return [[sx, sy]];
+  const queue = [sk], parent = new Map([[sk, -1]]);
+  let head = 0, found = false;
+  while (head < queue.length) {
+    const k = queue[head++], x = k % N, y = (k / N) | 0;
+    for (const d of D4) {
+      const nx = x + d[0], ny = y + d[1], nk = K(nx, ny);
+      if (!conn.has(nk) || parent.has(nk)) continue;
+      parent.set(nk, k);
+      if (nk === gk) { found = true; break; }
+      queue.push(nk);
+    }
+    if (found) break;
+  }
+  if (!found) return null;
+  const path = []; let k = gk;
+  while (k !== -1) { path.push([k % N, (k / N) | 0]); k = parent.get(k); }
+  path.reverse(); return path;
+}
+function startTravel(r, targetBuilding, fallbackRoad, after) {
+  const sx = Math.floor(r.x), sy = Math.floor(r.y);
+  let from = nearestRoad(sx, sy);
+  if (!from && r.houseKey != null) { const home = bm.get(r.houseKey); if (home) from = buildingRoad(home); }
+  const to = targetBuilding ? buildingRoad(targetBuilding) : fallbackRoad;
+  if (!from || !to) { pathFailCount++; r.state = "idle"; r.timer = 1; r.target = null; r.path = null; return false; }
+  const path = findPath(from[0], from[1], to[0], to[1]);
+  if (!path) { pathFailCount++; r.state = "idle"; r.timer = 1; r.target = null; r.path = null; return false; }
+  r.path = path; r.pathIndex = 0; r.afterMove = after || "idle"; r.target = to; r.state = "move"; r.timer = 999;
+  return true;
+}
+function arrive(r) {
+  r.path = null; r.pathIndex = 0; r.target = null; r.state = r.afterMove || "idle";
+  if (r.state === "sleep") { r.needs.fat = Math.min(100, r.needs.fat + 55); r.mood = Math.min(100, r.mood + 2); r.timer = 3; }
+  else if (r.state === "work") {
+    r.needs.fat = Math.max(0, r.needs.fat - 8); r.needs.joy = Math.max(0, r.needs.joy - 1.5); r.skill = Math.min(100, (r.skill || 0) + 0.6);
+    const jb = r.jobKey != null ? bm.get(r.jobKey) : null;
+    if (jb) { const wage = 6 + Math.floor((r.skill || 0) / 15); const paid = Math.min(Math.max(0, jb.cash || 0), wage); jb.cash = Math.max(0, (jb.cash || 0) - paid); r.wallet = (r.wallet || 0) + paid; syncRp(); }
+    r.timer = 4;
+  }
+  else if (r.state === "social") { r.needs.soc = Math.min(100, r.needs.soc + 30); r.mood = Math.min(100, r.mood + 3); r.timer = 3; }
+  else r.timer = 1 + Math.random() * 2;
+}
+
+// 道路速度與壅塞度計算
+function getRoadSpeedMult(gx, gy) {
+  const rt = getRoadType(gx, gy);
+  const bg = bridges.get(K(gx, gy));
+  let baseSpd = 1.0, cap = 4;
+  if (bg && TY[bg]) { baseSpd = TY[bg].spd || 1.2; cap = TY[bg].cap || 6; }
+  else if (rt && ROAD_TYPES[rt]) { baseSpd = ROAD_TYPES[rt].spd; cap = ROAD_TYPES[rt].cap; }
+  const tr = getTraffic(gx, gy);
+  const congRatio = tr > cap ? Math.max(0.42, cap / tr) : 1.0;
+  return baseSpd * congRatio;
+}
+
+function aiStep(r, dt) {
+  r.needs.hun = Math.max(0, r.needs.hun - dt * .35); r.needs.fat = Math.max(0, r.needs.fat - dt * .35);
+  r.needs.joy = Math.max(0, r.needs.joy - dt * .18); r.needs.soc = Math.max(0, r.needs.soc - dt * .18);
+  if (r.state === "move" && r.path && r.path.length) {
+    const node = r.path[r.pathIndex], tx = node[0] + .5, ty = node[1] + .5;
+    addTraffic(node[0], node[1], dt * 1.4);
+    const wxSpd = getCurWeather().spdMult || 1.0;
+    const roadSpd = getRoadSpeedMult(node[0], node[1]);
+    const dx = tx - r.x, dy = ty - r.y, dd = Math.hypot(dx, dy), v = dt * 1.05 * wxSpd * roadSpd;
+    if (dd > v) { r.x += dx / dd * v; r.y += dy / dd * v; }
+    else { r.x = tx; r.y = ty; r.pathIndex++; if (r.pathIndex >= r.path.length) arrive(r); }
+    return;
+  }
+  r.timer -= dt; if (r.timer <= 0) decide(r);
+}
+function decide(r) {
+  const hour = hr();
+  if (r.needs.hun < 25) {
+    r.state = "eat";
+    const foodGoods = ["noodle", "rice", "veg", "meat"];
+    const foodShops = allBuildings().filter(b => b.p >= 1 && ok(b) && TY[b.t].sell && TY[b.t].sell.some(g => foodGoods.includes(g) && (b.out[g] || 0) >= 0.25));
+    if (foodShops.length > 0) {
+      const shop = randOf(foodShops);
+      const availG = TY[shop.t].sell.find(g => foodGoods.includes(g) && (shop.out[g] || 0) >= 0.25);
+      const cost = +(mp(availG) * 1.35 * 0.25).toFixed(2);
+      if ((r.wallet || 0) >= cost) {
+        r.wallet -= cost; shop.out[availG] = Math.max(0, (shop.out[availG] || 0) - 0.25);
+        income(shop, cost, TAX_RATES[policy.taxTier] || .30); syncRp();
+        r.needs.hun = Math.min(100, r.needs.hun + 50); r.mood = Math.min(100, r.mood + 3);
+      } else { r.needs.hun = Math.min(100, r.needs.hun + 15); }
+    } else { r.needs.hun = Math.min(100, r.needs.hun + 12); r.mood = Math.max(0, r.mood - 4); }
+    r.timer = 2; return;
+  }
+  if (r.needs.fat < 30 || hour < 6 || hour >= 23) {
+    const hb = r.houseKey != null ? bm.get(r.houseKey) : null;
+    if (hb && startTravel(r, hb, null, "sleep")) return;
+    r.state = "sleep"; r.needs.fat = Math.min(100, r.needs.fat + 35); r.timer = 3; return;
+  }
+  if (r.jobKey && hour >= 7 && hour < 18) { const jb = bm.get(r.jobKey); if (jb && startTravel(r, jb, null, "work")) return; }
+  if (r.needs.soc < 40 && hour >= 18 && hour < 22 && CR.length) { const k = CR[Math.random() * CR.length | 0]; if (startTravel(r, null, [k % N, (k / N) | 0], "social")) return; }
+  if (CR.length) { const k = CR[Math.random() * CR.length | 0]; if (startTravel(r, null, [k % N, (k / N) | 0], "walk")) { r.needs.joy = Math.min(100, r.needs.joy + 5); return; } }
+  r.state = "idle"; r.timer = 2;
+}
+
+function updateActiveSet() {
+  const hw = VW / 2 / Z, hh = VH / 2 / Z;
+  const ex0 = cam.x - hw, ex1 = cam.x + hw, ey0 = cam.y - hh, ey1 = cam.y + hh;
+  const toWorld = (ex, ey) => [(ex / HW + ey / HH) / 2, (ey / HH - ex / HW) / 2];
+  const cs = [toWorld(ex0, ey0), toWorld(ex1, ey0), toWorld(ex0, ey1), toWorld(ex1, ey1)];
+  const xs = cs.map(c => c[0]), ys = cs.map(c => c[1]);
+  const wx0 = Math.min(...xs) - 3, wx1 = Math.max(...xs) + 3, wy0 = Math.min(...ys) - 3, wy1 = Math.max(...ys) + 3;
+  const next = new Set();
+  residents.forEach(r => { if (r.x >= wx0 && r.x <= wx1 && r.y >= wy0 && r.y <= wy1) next.add(r.id); });
+  activeResidents = next;
+  const n = activeResidents.size;
+  aiInterval = n <= VIEW_AI_FULL ? 0 : n <= VIEW_AI_MID ? 0.5 : 1;
+}
+function activeTick(dt) {
+  if (aiInterval <= 0) activeResidents.forEach(id => { const r = residents.get(id); if (r) aiStep(r, dt); });
+  else { aiAcc += dt; if (aiAcc >= aiInterval) { const step = aiAcc; aiAcc = 0; activeResidents.forEach(id => { const r = residents.get(id); if (r) aiStep(r, step); }); } }
+}
+
+// ============================================================
+// 9. 存檔 v6（相容 v5）
+// ============================================================
+let sv = 0; const dirty = () => { clearTimeout(sv); sv = setTimeout(save, 400); };
+const rd = o => { const r = {}; for (const k in (o || {})) r[k] = +o[k].toFixed(2); return r; };
+function save() {
+  try {
+    const ch = {};
+    chunks.forEach(c => {
+      if (!c.roads.size && !c.bm.size && (!c.zones || !c.zones.size) && (!c.biomeOv || !c.biomeOv.size)) return;
+      const bList = [];
+      c.bm.forEach(b => { if (!b._ref) bList.push([b.t, b.x, b.y, +b.p.toFixed(3), b.dir || 0, b.c, { cash: +(b.cash || 0).toFixed(1), in: rd(b.in), out: rd(b.out), prog: b.prog || 0, br: b.br || 0, st: b.st, hk: b.hk, workers: b.workers || [] }]); });
+      ch[cKey(c.cx, c.cy)] = {
+        r: Array.from(c.roads.entries()),
+        z: c.zones ? Array.from(c.zones.entries()) : [],
+        bo: c.biomeOv ? Array.from(c.biomeOv.entries()) : [],
+        b: bList
+      };
+    });
+    const rs = [];
+    residents.forEach(r => rs.push([r.id, r.name, r.gender, r.age, r.born, r.familyId, r.houseKey, r.jobKey, r.skill, r.wallet, rd(r.needs), +r.mood.toFixed(1), r.rel.parent, r.rel.spouse, r.rel.children, r.log.slice(-20)]));
+    const hhs = [];
+    households.forEach(h => hhs.push([h.id, h.homeKey, h.members, +h.wallet.toFixed(1)]));
+    localStorage.setItem(KEY, JSON.stringify({ v: 6, reg: worldRegion, ch, m: S.m, t: S.t, rp: +S.rp.toFixed(1), cam: { x: cam.x, y: cam.y, z: Z }, tool, sel, sp: speed, rs, hhs, nid: nextId, nhid: nextHouseId, bg: Array.from(bridges.entries()), stg: townStage, chr: chronicle, ms: milestones, wx: { sa: seasonAuto, sm: seasonManual, wa: weatherAuto, wi: weatherId, ds: dockSilted }, pol: policy }));
+  } catch (e) {}
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY) || localStorage.getItem("town_save_v5");
+    const d = JSON.parse(raw); if (!d || (d.v !== 6 && d.v !== 5)) return false;
+    chunks.clear(); residents.clear(); households.clear(); activeResidents.clear();
+    worldRegion = d.reg || "jiangnan";
+    bridges = new Map(Array.isArray(d.bg) ? (typeof d.bg[0] === "number" ? d.bg.map(k => [k, "b_stone"]) : d.bg) : []);
+    townStage = d.stg || 0; chronicle = d.chr || []; milestones = d.ms || {};
+    if (d.wx) { seasonAuto = d.wx.sa !== false; seasonManual = d.wx.sm || 0; weatherAuto = d.wx.wa !== false; weatherId = d.wx.wi || "clear"; dockSilted = !!d.wx.ds; }
+    if (d.pol) policy = Object.assign(policy, d.pol);
+    for (const k in d.ch) {
+      const [cx, cy] = k.split(",").map(Number); const c = getChunk(cx, cy, true);
+      (d.ch[k].r || []).forEach(item => { if (Array.isArray(item)) c.roads.set(item[0], item[1]); else c.roads.set(item, "r_stone"); });
+      (d.ch[k].z || []).forEach(pair => { if (!c.zones) c.zones = new Map(); c.zones.set(pair[0], pair[1]); });
+      (d.ch[k].bo || []).forEach(pair => { if (!c.biomeOv) c.biomeOv = new Map(); c.biomeOv.set(pair[0], pair[1]); });
+      (d.ch[k].b || []).forEach(a => { if (TY[a[0]]) setB(a[1], a[2], Object.assign({ t: a[0], x: a[1], y: a[2], p: a[3], dir: a[4] || 0, c: a[5] }, a[6] || {})); });
+    }
+    (d.rs || []).forEach(a => {
+      residents.set(a[0], { id: a[0], name: a[1], gender: a[2], age: a[3], born: a[4], familyId: a[5], houseKey: a[6], jobKey: a[7], skill: a[8], wallet: a[9], needs: a[10], mood: a[11], rel: { parent: a[12], spouse: a[13], children: a[14] || [] }, log: a[15] || [], x: 0, y: 0, state: "idle", timer: 0, target: null, path: null, pathIndex: 0, afterMove: "idle" });
+    });
+    (d.hhs || []).forEach(a => households.set(a[0], { id: a[0], homeKey: a[1], members: a[2], wallet: a[3] }));
+    nextId = d.nid || 1; nextHouseId = d.nhid || 1;
+    S = { m: d.m, t: d.t, rp: d.rp || 0 };
+    if (d.cam) { cam.x = d.cam.x; cam.y = d.cam.y; Z = d.cam.z || Z; }
+    if (d.sel) sel = Object.assign(sel, d.sel); if (d.tool) tool = d.tool; if (d.sp) { speed = d.sp; $("#bSpd").textContent = speed + "×"; }
+    residents.forEach(r => {
+      const hb = r.houseKey != null ? bm.get(r.houseKey) : null;
+      const hh = r.familyId != null ? households.get(r.familyId) : null;
+      const idx = hh ? Math.max(0, hh.members.indexOf(r.id)) : 0;
+      if (hb) placeResidentAtHome(r, hb, idx);
+      else { r.x = DOCK.x - 1 + Math.random() * 2; r.y = DOCK.y - 1 + Math.random() * 2; }
+    });
+    syncRp(); updateRegBadge(); return true;
+  } catch (e) { console.warn(e); return false; }
+}
+function fresh() {
+  chunks.clear(); residents.clear(); households.clear(); activeResidents.clear(); bridges = new Map();
+  townStage = 0; chronicle = []; milestones = {};
+  S = { m: 2800, t: 120, rp: 0 };
+  addRoad(DOCK.x, DOCK.y, "r_imp");
+  const reg = REGIONS[worldRegion] || REGIONS.jiangnan;
+  addChronicle("建鎮", "於「" + reg.name + "」河畔碼頭立下界碑，開啟築夢之旅。", "found_town");
+  updateRegBadge();
+  centerOn(DOCK.x - 2, DOCK.y + 2);
+}
+function centerOn(x, y) { cam.x = (x - y) * HW; cam.y = (x + y) * HH; }
+function home() { let sx = 0, sy = 0, n = 0; forEachB(b => { sx += b.x; sy += b.y; n++; }); if (n) centerOn(sx / n, sy / n); else centerOn(DOCK.x - 2, DOCK.y + 2); clampCam(); dirty(); }
+
+// ============================================================
+// 10. 建築升級、旋轉、放置與提示卡
+// ============================================================
+let mt;
+function say(m) { const e = $("#msg"); e.textContent = m; e.classList.add("show"); clearTimeout(mt); mt = setTimeout(() => e.classList.remove("show"), 2800); }
+
+function canUpgradeBuilding(b) {
+  const T = TY[b.t];
+  if (!T || !T.upTo || b.p < 1) return { ok: false, reason: "已達最高階或尚未完工" };
+  const NT = TY[T.upTo];
+  if (S.m < T.upCost) return { ok: false, reason: "銀兩不足（需 " + T.upCost + " 文）" };
+  // 檢查所需物資（從全鎮庫存扣除）
+  for (const g in (T.upReq || {})) {
+    if ((SUP[g] || 0) < T.upReq[g]) return { ok: false, reason: "全鎮庫存「" + GD[g].n + "」不足（需 " + T.upReq[g] + " 份）" };
+  }
+  // 檢查尺寸擴張是否會撞到其他建築或河道
+  const oldCells = new Set(getFootprint(b.x, b.y, T, b.dir || 0).map(c => K(c[0], c[1])));
+  const newCells = getFootprint(b.x, b.y, NT, b.dir || 0);
+  for (const [nx, ny] of newCells) {
+    if (!inW(nx, ny) || isW(nx, ny)) return { ok: false, reason: "擴建範圍超出邊界或碰到河道" };
+    if (!oldCells.has(K(nx, ny)) && (hasRoad(nx, ny) || getB(nx, ny))) return { ok: false, reason: "周邊空地不足，無法擴建為 " + (NT.w || 1) + "×" + (NT.d_len || 1) };
+  }
+  return { ok: true, target: NT };
+}
+
+function upgradeBuilding(b) {
+  const chk = canUpgradeBuilding(b);
+  if (!chk.ok) return say(chk.reason);
+  const T = TY[b.t], NT = chk.target;
+  S.m -= T.upCost;
+  // 扣除全鎮建築庫存中的升級建材/奢侈品
+  for (const g in (T.upReq || {})) {
+    let need = T.upReq[g];
+    forEachB(src => {
+      if (need <= 0 || !src.out || !src.out[g]) return;
+      const take = Math.min(need, src.out[g]);
+      src.out[g] -= take;
+      need -= take;
+    });
+  }
+  delB(b.x, b.y);
+  b.t = NT.id;
+  b.c += T.upCost;
+  setB(b.x, b.y, b);
+  // 若住宅容量增加，吸引新住戶加入
+  if (b.hk) {
+    const hh = households.get(b.hk);
+    if (hh && hh.members.length < NT.cap) {
+      const m1 = mkResident({ gender: "m", age: 22, familyId: hh.id, houseKey: K(b.x, b.y), wallet: 90 });
+      const m2 = mkResident({ gender: "f", age: 21, familyId: hh.id, houseKey: K(b.x, b.y), wallet: 90 });
+      m1.rel.spouse = m2.id; m2.rel.spouse = m1.id;
+      hh.members.push(m1.id, m2.id);
+      placeResidentAtHome(m1, b, 2); placeResidentAtHome(m2, b, 3);
+      syncRp();
+    }
+  }
+  addChronicle("擴建", "一座「" + T.n + "」正式擴建升級為「" + NT.n + "」。");
+  say("✨ 已將「" + T.n + "」升級為「" + NT.n + "」！");
+  showCard(b);
+  dirty();
+}
+
+function showCard(b) {
+  cardB = b; const T = TY[b.t];
+  const zn = getZone(b.x, b.y);
+  const znStr = zn && TY[zn] ? "・[" + TY[zn].n + "]" : "";
+  const dimStr = ((T.w || 1) > 1 || (T.d_len || 1) > 1) ? " (" + (T.w || 1) + "×" + (T.d_len || 1) + ")" : "";
+  const syn = getSynergyBonus(b);
+  const synStr = syn.details.length ? "\n相鄰加成：×" + syn.mult + "（" + syn.details.join("、") + "）" : "";
+  const noiseStr = T.cat === "house" ? "・環境噪音 " + calcHouseNoise(b.x, b.y) + "dB" : "";
+  const qualStr = (T.rec && b.p >= 1) ? "・工匠品質 ×" + getBuildingQualityMult(b).toFixed(2) : "";
+  let t = T.n + dimStr + znStr + "・" + (b.p < 1 ? "興建中 " + Math.floor(b.p * 100) + "%" : T.cat === "house" ? "住戶 " + ((households.get(b.hk) || { members: [] }).members.length) + "/" + (T.cap || 4) + noiseStr : T.cat === "park" ? "景觀" : (b.st || "運作中") + qualStr) + (ok(b) ? "" : "（未連通道路）") + synStr;
+  if (b.p >= 1 && T.cat !== "house" && T.cat !== "park") {
+    const li = o => Object.keys(o || {}).filter(g => o[g] >= 1).map(g => GD[g].n + " " + Math.floor(o[g])).join("、") || "無";
+    t += "\n營運資金 " + Math.floor(b.cash || 0) + " 文・員工 " + (b.workers || []).length + "/" + (T.jobs || 3) + "\n庫存：" + li(b.out) + (T.rec && Object.keys(T.rec.in).length ? "\n原料：" + li(b.in) : "");
+  }
+  const upgBtn = $("#cardUpg");
+  if (T.upTo && b.p >= 1) {
+    const NT = TY[T.upTo];
+    const reqList = [T.upCost + "文"].concat(Object.keys(T.upReq || {}).map(g => GD[g].n + "×" + T.upReq[g]));
+    upgBtn.style.display = "block";
+    upgBtn.textContent = "升級為" + NT.n + "（" + reqList.join("+") + "）";
+  } else {
+    upgBtn.style.display = "none";
+  }
+  $("#cardT").textContent = t;
+  $("#cardDel").textContent = "移除（退還 " + b.c + " 文）";
+  $("#card").style.display = "flex";
+}
+function hideCard() { cardB = null; $("#card").style.display = "none"; }
+$("#cardUpg").onclick = () => { if (cardB) upgradeBuilding(cardB); };
+
+function removeB(b) {
+  const T = TY[b.t], back = b.c + (b.br ? 40 : 0);
+  S.m += back; delB(b.x, b.y);
+  if ((T.k === "pavilion" || b.br) && !isW(b.x, b.y)) { delRoad(b.x, b.y); bridges.delete(K(b.x, b.y)); calcConn(); }
+  if (b.hk) {
+    const hh = households.get(b.hk);
+    if (hh) { [...hh.members].forEach(id => leaveResident(residents.get(id) || { id, log: [] }, "家園拆除")); households.delete(b.hk); }
+  }
+  hideCard(); say("已移除 " + T.n + "，退還 " + back + " 文"); dirty();
+}
+$("#cardDel").onclick = () => { if (cardB) removeB(cardB); };
+$("#cardX").onclick = hideCard;
+
+function showResident(r) {
+  resCardR = r;
+  const hh = r.familyId ? households.get(r.familyId) : null;
+  const fam = hh ? hh.members.map(id => { const m = residents.get(id); return m ? m.name + "（" + m.age + "）" : null; }).filter(Boolean).join("、") : "無";
+  const spouse = r.rel.spouse ? (residents.get(r.rel.spouse) || {}).name || "（已故/遷出）" : "無";
+  const job = r.jobKey ? (bm.get(r.jobKey) ? TY[bm.get(r.jobKey).t].n : "工作地已不存在") : "待業";
+  const rk = getCareerRank(r);
+  $("#resName").textContent = r.name + "・" + (r.gender === "f" ? "女" : "男") + "・" + r.age + "歲";
+  $("#resBody").textContent =
+    "職業：" + job + (r.jobKey ? "（" + rk.title + "・產出 ×" + rk.mult.toFixed(2) + "）" : "") + "\n" +
+    "家庭：" + fam + "\n配偶：" + spouse + "\n" +
+    "錢包：" + Math.floor(r.wallet) + " 景元\n" +
+    "心情：" + Math.round(r.mood) + "%　技能：" + Math.floor(r.skill) + "\n" +
+    "需求：飽食 " + Math.round(r.needs.hun) + "　體力 " + Math.round(r.needs.fat) + "　心情 " + Math.round(r.needs.joy) + "　社交 " + Math.round(r.needs.soc) + "\n" +
+    "狀態：" + ({ idle: "閒置", move: "移動中", work: "上班", eat: "吃飯", sleep: "休息", social: "社交", walk: "散步" }[r.state] || r.state) + "\n\n" +
+    "經歷：\n" + (r.log.length ? r.log.slice(-8).join("\n") : "（尚無）");
+  $("#resCard").style.display = "flex";
+}
+$("#resX").onclick = () => { resCardR = null; $("#resCard").style.display = "none"; };
+
+// 消耗全鎮石材或雙倍銀兩替代
+function consumeStoneOrSilver(stoneNeed, silverBase) {
+  if (!stoneNeed) {
+    if (S.m < silverBase) return false;
+    S.m -= silverBase; return true;
+  }
+  if ((SUP.stone || 0) >= stoneNeed && S.m >= silverBase) {
+    S.m -= silverBase;
+    let left = stoneNeed;
+    forEachB(b => { if (left > 0 && b.out && b.out.stone > 0) { const t = Math.min(left, b.out.stone); b.out.stone -= t; left -= t; } });
+    return true;
+  }
+  const altCost = silverBase + stoneNeed * 10;
+  if (S.m >= altCost) { S.m -= altCost; return true; }
+  return false;
+}
+
+const curT = () => tool === "road" ? ROAD_TYPES[sel.road] : TY[sel[tool]];
+
+function can(x, y) {
+  if (tool === "del") return !!getB(x, y) || hasRoad(x, y);
+  if (tool === "road") {
+    if (!inW(x, y) || isW(x, y) || getB(x, y)) return false;
+    const rt = getRoadType(x, y);
+    if (rt === sel.road) return false;
+    const RT = ROAD_TYPES[sel.road];
+    const needStone = RT.stone || 0;
+    const minCost = RT.c + ((SUP.stone || 0) >= needStone ? 0 : needStone * 10);
+    return S.m >= minCost;
+  }
+  if (tool === "bridge") {
+    const T = curT(), b = getB(x, y);
+    if (T.id === "b_wood" || T.id === "b_stone") {
+      const needStone = T.stone || 0;
+      const minCost = T.c + ((SUP.stone || 0) >= needStone ? 0 : needStone * 10);
+      return isW(x, y) && bridges.get(K(x, y)) !== T.id && S.m >= minCost;
+    }
+    return !!b && TY[b.t].k === "pond" && b.p >= 1 && !b.br && S.m >= T.c;
+  }
+  const T = curT(); if (!T || S.m < T.c) return false;
+  const cells = getFootprint(x, y, T, buildDir);
+  for (const [cx0, cy0] of cells) {
+    if (!inW(cx0, cy0) || isW(cx0, cy0) || hasRoad(cx0, cy0) || getB(cx0, cy0)) return false;
+  }
+  return T.cat === "park" || roadAdjFootprint(x, y, T, buildDir);
+}
+
+function act(x, y) {
+  if (!inW(x, y)) return;
+  const b = getB(x, y);
+  if (tool === "look") {
+    let best = null, bd = .7;
+    residents.forEach(r => { if (!activeResidents.has(r.id)) return; const d = Math.hypot(r.x - x - .5, r.y - y - .5); if (d < bd) { bd = d; best = r; } });
+    if (best) { showResident(best); return; }
+    if (b) showCard(b); else {
+      hideCard();
+      const zn = getZone(x, y);
+      const znTag = (zn && TY[zn]) ? "・[" + TY[zn].n + "]" : "";
+      const rt = getRoadType(x, y);
+      const bg = bridges.get(K(x, y));
+      const tr = getTraffic(x, y);
+      let desc = "空地";
+      if (isW(x, y)) desc = bg ? TY[bg].n + "（壅塞度 " + Math.round(tr) + "/" + (TY[bg].cap || 6) + "）" : "河水";
+      else if (rt) {
+        const RT = ROAD_TYPES[rt];
+        desc = RT.n + (conn.has(K(x, y)) ? "（壅塞度 " + Math.round(tr) + "/" + RT.cap + "）" : "（未接河岸）");
+      }
+      say(desc + znTag);
+    }
+    return;
+  }
+  if (tool === "del") {
+    if (b && b.br) { b.br = 0; if (!isW(x, y)) { delRoad(x, y); bridges.delete(K(x, y)); } S.m += 40; calcConn(); say("已拆除小橋，退還 40 文"); dirty(); }
+    else if (b) removeB(b);
+    else if (hasRoad(x, y)) {
+      const bg = bridges.get(K(x, y)), rt = getRoadType(x, y);
+      delRoad(x, y); bridges.delete(K(x, y));
+      S.m += bg ? (TY[bg].c || 50) : (rt && ROAD_TYPES[rt] ? ROAD_TYPES[rt].c : 15);
+      calcConn(); dirty();
+    } else say("這裡沒有可以拆的東西");
+    return;
+  }
+  if (tool === "road") {
+    if (isW(x, y)) return say("河面上請使用「橋樑」工具");
+    if (getB(x, y)) return say("這格已經有建築了");
+    const RT = ROAD_TYPES[sel.road];
+    if (getRoadType(x, y) === sel.road) return;
+    if (!consumeStoneOrSilver(RT.stone || 0, RT.c)) return say("銀兩或石材不足（需 " + RT.c + " 文" + (RT.stone ? " + " + RT.stone + "石材" : "") + "）");
+    addRoad(x, y, sel.road); calcConn(); dirty(); return;
+  }
+  if (tool === "bridge") {
+    const T = curT();
+    if (T.id === "b_wood" || T.id === "b_stone") {
+      if (!isW(x, y)) return say("跨河橋樑要蓋在河面上");
+      if (bridges.get(K(x, y)) === T.id) return;
+      if (!consumeStoneOrSilver(T.stone || 0, T.c)) return say("銀兩或石材不足");
+      addRoad(x, y, "r_imp"); bridges.set(K(x, y), T.id); calcConn(); dirty(); return;
+    }
+    if (!b || TY[b.t].k !== "pond") return say("池塘小橋要蓋在池塘上");
+    if (b.p < 1) return say("池塘還在興建"); if (b.br) return say("這座池塘已經有橋了");
+    if (S.m < T.c) return say("鎮庫不足");
+    b.br = 1; addRoad(x, y, "r_stone"); S.m -= T.c; calcConn(); dirty(); return;
+  }
+  const T = curT();
+  if (!can(x, y)) {
+    const cells = getFootprint(x, y, T, buildDir);
+    if (cells.some(([cx0, cy0]) => !inW(cx0, cy0) || isW(cx0, cy0) || hasRoad(cx0, cy0) || getB(cx0, cy0))) return say("佔地範圍內有障礙或河道");
+    if (S.m < T.c) return say("鎮庫不足，需要 " + T.c + " 文");
+    return say("建築邊緣需要緊鄰已連通河岸的道路");
+  }
+  S.m -= T.c;
+  if (ECO.pop > 0 && residents.size > 0) {
+    const share = (T.c * .35) / residents.size;
+    residents.forEach(r => { r.wallet = (r.wallet || 0) + share; });
+    syncRp();
+  }
+  setB(x, y, { t: T.id, x, y, p: 0, dir: buildDir, c: T.c, cash: Math.round(T.c * .4), in: {}, out: {}, prog: 0, workers: [] });
+  if (T.k === "pavilion") { addRoad(x, y, "r_stone"); calcConn(); }
+  dirty();
+}
+
+function renderSub() {
+  const e = $("#sub");
+  if (tool === "road") {
+    e.style.display = "flex";
+    e.innerHTML = Object.values(ROAD_TYPES).map(v => '<button class="ch' + (sel.road === v.id ? " on" : "") + '" data-id="' + v.id + '"><span>' + v.n + '</span><small>' + v.c + '文' + (v.stone ? '+' + v.stone + '石' : '') + '</small></button>').join("");
+    return;
+  }
+  const L = CAT[tool];
+  if (!L || L.length < 2) { e.style.display = "none"; return; }
+  e.style.display = "flex";
+  e.innerHTML = L.map(v => {
+    const dim = ((v.w || 1) > 1 || (v.d_len || 1) > 1) ? " " + (v.w || 1) + "×" + (v.d_len || 1) : "";
+    return '<button class="ch' + (sel[tool] === v.id ? " on" : "") + '" data-id="' + v.id + '"><span>' + v.n + dim + '</span><small>' + (v.c ? v.c + "文" : "免費") + '</small></button>';
+  }).join("");
+}
+$("#sub").onclick = e => { const b = e.target.closest(".ch"); if (!b) return; sel[tool] = b.dataset.id; renderSub(); updBar(); dirty(); };
+function updBar() {
+  document.querySelectorAll(".tb").forEach(b => {
+    const k = b.dataset.k, L = CAT[k]; b.classList.toggle("on", k === tool);
+    b.querySelector("small").textContent = k === "road" ? ROAD_TYPES[sel.road].c + "文" : L ? (TY[sel[k]].c ? TY[sel[k]].c + "文" : "區劃") : "";
+  });
+}
+function pick(k) {
+  tool = k; hideCard(); $("#resCard").style.display = "none"; renderSub(); updBar();
+  say({ look: "點居民看檔案，點建築看詳情與升級", road: "拖曳鋪設或升級道路（土路/石板路/官道/驛站）", zone: "拖曳框選指定功能區劃或整地改造地貌", bridge: "木橋/石拱橋架於河面，池塘小橋架於池塘", del: "點擊或拖曳拆除", park: "園景可蓋在任何空地並降低噪音" }[k] || "點擊空地建造（按 R 或 ↻ 旋轉方向）");
+  dirty();
+}
+TOOLS.forEach(t => { const b = document.createElement("button"); b.className = "tb"; b.dataset.k = t[0]; b.innerHTML = "<span>" + t[1] + "</span><small></small>"; b.onclick = () => pick(t[0]); $("#bar").appendChild(b); });
+
+// ============================================================
+// 11. 經濟模擬（完整產業鏈、保存期限腐敗、季節需求、地區加成）
+// ============================================================
+const ens = b => { if (!b.out) b.out = {}; if (!b.in) b.in = {}; if (b.cash == null) b.cash = Math.round(b.c * .4); if (!b.workers) b.workers = []; };
+function mp(g) { const T = GD[g], s = SUP[g] || 0, tg = TGT[g] || 16; return Math.max(.5 * T.p, Math.min(2 * T.p, T.p * (1.8 - .8 * s / tg))); }
+function payWorkers(b, wage) {
+  if (wage <= 0) return 0;
+  const ws = (b.workers || []).map(id => residents.get(id)).filter(Boolean);
+  if (ws.length > 0) { const each = wage / ws.length; ws.forEach(w => { w.wallet = (w.wallet || 0) + each; }); return wage; }
+  else if (residents.size > 0) { const each = wage / residents.size; residents.forEach(w => { w.wallet = (w.wallet || 0) + each; }); return wage; }
+  return 0;
+}
+function income(s, pay, rate) { const tax = pay * rate, wage = pay * .35; s.cash += pay - tax - wage; S.m += tax; const paid = payWorkers(s, wage); if (paid > 0) syncRp(); else S.rp += wage; }
+function syncRp() { let sum = 0; residents.forEach(r => { sum += Math.max(0, r.wallet || 0); }); S.rp = sum; }
+function disposableRp() { let sum = 0; residents.forEach(r => { sum += Math.max(0, (r.wallet || 0) - RESERVE_CASH); }); return sum; }
+function spendDisposable(amount) {
+  const disp = disposableRp(); if (disp <= 0 || amount <= 0) return 0;
+  const actual = Math.min(amount, disp * 0.25), ratio = actual / disp;
+  residents.forEach(r => { const d = Math.max(0, (r.wallet || 0) - RESERVE_CASH); if (d > 0) r.wallet -= d * ratio; });
+  syncRp(); return actual;
+}
+function scan(bl) { SUP = {}; SL = {}; bl.forEach(b => { for (const g in b.out) if (b.out[g] > 0) { SUP[g] = (SUP[g] || 0) + b.out[g]; if (TY[b.t].cat !== "shop") (SL[g] = SL[g] || []).push(b); } }); }
+
+// 檢查建築周邊是否有驛站提速物流
+function hasPostStationNear(x, y) {
+  for (let dy = -6; dy <= 6; dy++) for (let dx = -6; dx <= 6; dx++) {
+    if (getRoadType(x + dx, y + dy) === "r_post") return true;
+  }
+  return false;
+}
+
+function buy(b, g, qty, dst) {
+  const pr = mp(g);
+  const isInput = dst === b.in;
+  const subsidyCap = Math.max(30, (b.c || 0) * .5);
+  const subsidyLeft = isInput ? Math.max(0, subsidyCap - (b.subsidyUsed || 0)) : 0;
+  const budgetLeft = Math.max(0, (S.subsidyBudget || 0) - (S.subsidyUsedGlobal || 0));
+  const available = Math.max(0, b.cash || 0) + Math.min(budgetLeft, subsidyLeft);
+  qty = Math.min(qty, Math.floor(available / pr)); if (qty <= 0) return 0;
+  let got = 0;
+  const postBonus = hasPostStationNear(b.x, b.y) ? 0.65 : 1.0;
+  for (const supplier of (SL[g] || [])) {
+    if (supplier === b) continue;
+    const amount = Math.min(qty - got, Math.floor(supplier.out[g] || 0));
+    if (amount <= 0) continue;
+    const dist = Math.abs(b.x - supplier.x) + Math.abs(b.y - supplier.y);
+    const freight = +(amount * Math.max(0, dist - 2) * 0.10 * postBonus).toFixed(2);
+    const cost = amount * pr + freight;
+    const fromBusiness = Math.min(Math.max(0, b.cash || 0), cost);
+    let fromTreasury = Math.min(cost - fromBusiness, budgetLeft, S.m);
+    b.cash = Math.max(0, (b.cash || 0) - fromBusiness);
+    if (fromTreasury > 0) { S.m = Math.max(0, S.m - fromTreasury); b.subsidyUsed = (b.subsidyUsed || 0) + fromTreasury; S.subsidyUsedGlobal = (S.subsidyUsedGlobal || 0) + fromTreasury; }
+    supplier.out[g] -= amount; income(supplier, fromBusiness + fromTreasury, .08); got += amount;
+    if (got >= qty) break;
+  }
+  if (got) dst[g] = (dst[g] || 0) + got;
+  return got;
+}
+
+function produce(b, T) {
+  const r = T.rec;
+  const sIdx = getCurSeason();
+  let rateMult = 1.0;
+  if (T.cat === "farm") {
+    rateMult = (SEASONS[sIdx].farmMult || 1.0) * (getCurWeather().farmMult || 1.0) * ((activeEvent && activeEvent.farmMult) || 1.0);
+  }
+  // 地區風土特產加成
+  const regObj = REGIONS[worldRegion] || REGIONS.jiangnan;
+  const outKeys = Object.keys(r.out);
+  const regMult = outKeys.length ? (regObj.bonus[outKeys[0]] || 1.0) : 1.0;
+  const qMult = getBuildingQualityMult(b);
+  const synMult = getSynergyBonus(b).mult;
+  const zCur = getZone(b.x, b.y);
+  const zMult = ((T.cat === "work" && zCur === "z_ind") || (T.cat === "farm" && zCur === "z_agr")) ? 1.15 : 1.0;
+
+  b.prog = Math.min(1.5, (b.prog || 0) + .55 * rateMult * regMult * qMult * synMult * zMult);
+  for (const g in r.in) {
+    const need = r.in[g] * 3 - (b.in[g] || 0);
+    if (need <= 0) continue;
+    buy(b, g, need, b.in);
+  }
+  if (b.prog < 1) return;
+  if (!Object.keys(r.in).every(g => (b.in[g] || 0) >= r.in[g])) { b.st = "缺料"; return; }
+  const maxCap = ((T.w || 1) * (T.d_len || 1)) >= 4 ? 70 : 45;
+  if (!Object.keys(r.out).every(g => (b.out[g] || 0) + r.out[g] <= maxCap)) { b.st = "滿倉"; return; }
+  b.prog -= 1;
+  for (const g in r.in) b.in[g] -= r.in[g];
+  for (const g in r.out) b.out[g] = (b.out[g] || 0) + r.out[g];
+  b.st = "運作中";
+}
+
+function tick() {
+  forEachB(b => { b.subsidyUsed = 0; });
+  S.subsidyBudget = Math.max(0, S.m * 0.02); S.subsidyUsedGlobal = 0;
+  const bl = []; forEachB(b => { if (b.p >= 1 && ok(b)) { ens(b); bl.push(b); } });
+  const cStats = getCivicStats();
+  const sIdx = getCurSeason();
+  const decayMult = (SEASONS[sIdx].decayMult || 1.0) * (cStats.granaries > 0 ? 0.8 : 1.0);
+
+  // 保存期限腐敗損耗
+  bl.forEach(b => {
+    for (const g in (b.out || {})) {
+      const dkRate = (GD[g] && GD[g].decay) ? GD[g].decay * decayMult : 0;
+      if (dkRate > 0 && b.out[g] > 0) b.out[g] = Math.max(0, b.out[g] * (1 - dkRate));
+    }
+  });
+
+  let pop = residents.size, jobs = 0, employed = 0, pk = 0, biz = 0;
+  bl.forEach(b => { const T = TY[b.t]; if (T.cat === "house") { if (b.p >= 1 && !b.hk) populateHouse(b); } else if (T.cat === "park") pk++; else { jobs += T.jobs || 3; employed += (b.workers || []).length; biz += b.cash; } });
+  TGT = { wheat: 24, flour: 20, stone: 20, herb: 16 };
+  Object.keys(GD).forEach(g => { if (GD[g].need) TGT[g] = Math.max(10, pop * GD[g].need * .6); });
+
+  scan(bl);
+  bl.forEach(b => { const T = TY[b.t]; if (T.rec) produce(b, T); });
+  scan(bl);
+
+  const shops = bl.filter(b => TY[b.t].sell);
+  shops.forEach(b => { const T = TY[b.t]; T.sell.forEach(g => { if (T.rec && T.rec.out[g]) return; const want = 26 - (b.out[g] || 0); if (want > 0) buy(b, g, want, b.out); }); });
+  scan(bl);
+
+  const sat = {};
+  const needGoods = Object.keys(GD).filter(g => GD[g].need);
+  needGoods.forEach(g => {
+    const sWeight = (GD[g].sNeed && GD[g].sNeed[sIdx]) ? GD[g].sNeed[sIdx] : 1.0;
+    const want = (pop * GD[g].need * sWeight) / 56;
+    const rp = mp(g) * 1.35; let left = want;
+    const isStaple = (g === "noodle" || g === "rice");
+    if (want > 0) for (const s of shops) {
+      if (left <= 0) break;
+      const stock = s.out[g] || 0;
+      const resRatio = FOOD_RESERVE_RATES[policy.foodTier] || 0.25;
+      const reserveStock = isStaple ? Math.floor(stock * resRatio) : 0;
+      const sellable = Math.max(0, stock - reserveStock);
+      if (sellable <= 0) continue;
+      const disp = disposableRp();
+      const maxAfford = disp / rp;
+      const affordable = Math.min(left, sellable, maxAfford);
+      if (affordable <= 0) continue;
+      const spent = affordable * rp;
+      s.out[g] -= affordable; spendDisposable(spent);
+      const curTax = TAX_RATES[policy.taxTier] || 0.30;
+      const zShopMult = getZone(s.x, s.y) === "z_com" ? 1.12 : 1.0;
+      const regTrade = (REGIONS[worldRegion] || REGIONS.jiangnan).tradeMult || 1.0;
+      income(s, spent * zShopMult * regTrade, curTax); left -= affordable;
+    }
+    const v = want > 0 ? 1 - left / want : 1, o = ECO.sat[g] == null ? 1 : ECO.sat[g];
+    sat[g] = o * .6 + v * .4;
+  });
+
+  const svcs = bl.filter(b => TY[b.t].svc); let ss = pop > 0 ? 0 : 1;
+  if (svcs.length && pop > 0) {
+    const dem = pop * .22; let sp = 0;
+    svcs.forEach(b => { const disp = disposableRp(); const x = Math.min(disp * 0.2, dem / svcs.length, 6); if (x > 0) { const spent = spendDisposable(x); if (spent > 0) { income(b, spent, .30); sp += spent; } } });
+    ss = Math.min(1, sp / dem);
+  }
+  shops.forEach(b => { const T = TY[b.t]; if (b.p >= 1 && !(T.rec && b.st === "缺料")) b.st = T.sell.some(g => (b.out[g] || 0) >= 1) ? "營業中" : "缺貨"; });
+  svcs.forEach(b => { b.st = "營業中"; });
+
+  const stapleSat = ((sat.noodle || 1) + (sat.rice || 1)) / 2;
+  const otherGoods = needGoods.filter(g => g !== "noodle" && g !== "rice");
+  const gs = (otherGoods.reduce((a, g) => a + (sat[g] || 1), 0) + ss) / (otherGoods.length + 1);
+  const emp = pop > 0 ? Math.min(1, jobs / pop) : 1, pkv = Math.min(1, pk / Math.max(1, pop / 8));
+  const wxMood = (getCurWeather().moodDelta || 0) + ((activeEvent && activeEvent.moodDelta) || 0);
+  let houseNoiseSum = 0, houseCnt = 0, resZoneBonus = 0;
+  forEachB(b => { if (b.p >= 1 && TY[b.t].cat === "house") { houseNoiseSum += calcHouseNoise(b.x, b.y); if (getZone(b.x, b.y) === "z_res") resZoneBonus += 4; houseCnt++; } });
+  const avgNoisePenalty = houseCnt > 0 ? (houseNoiseSum / houseCnt) * 0.45 : 0;
+  const avgZoneBonus = houseCnt > 0 ? (resZoneBonus / houseCnt) : 0;
+  const taxMoodDelta = policy.taxTier === 0 ? 4 : policy.taxTier === 2 ? -6 : 0;
+  const civicBonus = (cStats.security - 50) * 0.12 + (cStats.health - 50) * 0.10 + (cStats.eduRate) * 0.06;
+  const hap = Math.max(0, Math.min(100, 100 * (.42 * stapleSat + .28 * gs + .15 * emp + .15 * pkv) + wxMood + civicBonus + taxMoodDelta + avgZoneBonus - avgNoisePenalty));
+  const totalFood = (SUP.noodle || 0) + (SUP.rice || 0) + (SUP.veg || 0) * 0.6 + (SUP.meat || 0) * 1.2;
+  ECO = { food: totalFood, hap: pop > 0 ? ECO.hap * .7 + hap * .3 : 50, pop, jobs, employed, biz, sat };
+  evalTownStage();
+}
+
+function step(d) {
+  S.t += d;
+  // 道路壅塞度自然消散
+  chunks.forEach(c => { if (c.traffic && c.traffic.size) c.traffic.forEach((v, l) => { const nv = v - d * 0.85; if (nv <= 0.05) c.traffic.delete(l); else c.traffic.set(l, nv); }); });
+  forEachB(b => {
+    const T = TY[b.t];
+    if (b.p < 1) {
+      b.p = Math.min(1, b.p + d / (T.bt || 18));
+      if (b.p >= 1) {
+        addChronicle("營建", "建築「" + T.n + "」正式落成。", "first_build");
+        if (T.cat === "house" && !b.hk) populateHouse(b);
+      }
+    } else if (T.cat === "house" && !b.hk) populateHouse(b);
+  });
+  acc += d; if (acc >= 10) { acc -= 10; tick(); }
+  if (weatherAuto) {
+    weatherTimer -= d;
+    if (weatherTimer <= 0) {
+      const nextW = rollNaturalWeather(getCurSeason());
+      if (nextW !== weatherId) { weatherId = nextW; const wObj = getCurWeather(); say(wObj.icon + " 天氣轉為「" + wObj.name + "」"); }
+      weatherTimer = 150 + Math.random() * 180;
+    }
+  }
+  if (weatherId === "storm") { nextLightning -= d; if (nextLightning <= 0) { lightningAlpha = 0.65; nextLightning = 7 + Math.random() * 14; } }
+  if (lightningAlpha > 0) lightningAlpha = Math.max(0, lightningAlpha - d * 2.2);
+
+  if (!dockSilted && Math.random() < d * 0.16) {
+    const regTrade = (REGIONS[worldRegion] || REGIONS.jiangnan).tradeMult || 1.0;
+    S.m += (6 + Math.floor(ECO.pop * 0.5)) * regTrade;
+  }
+  updateActiveSet(); activeTick(d);
+  if (obsMode) {
+    obsTimer -= d;
+    if (!obsTarget || obsTimer <= 0) {
+      const candidates = []; forEachB(b => { if (b.p >= 1) candidates.push([b.x, b.y]); });
+      obsTarget = candidates.length ? (() => { const p = randOf(candidates); return { x: (p[0] - p[1]) * HW, y: (p[0] + p[1]) * HH }; })() : { x: (DOCK.x - DOCK.y) * HW, y: (DOCK.x + DOCK.y) * HH };
+      obsTimer = 10 + Math.random() * 6;
+    }
+    obsAngle += d * 0.18;
+    cam.x += (obsTarget.x + Math.cos(obsAngle) * 65 - cam.x) * Math.min(1, d * 0.45);
+    cam.y += (obsTarget.y + Math.sin(obsAngle) * 35 - cam.y) * Math.min(1, d * 0.45);
+    clampCam();
+  }
+  if (Math.floor(S.t / 360) !== Math.floor((S.t - d) / 360)) {
+    collectDailyTax();
+    const eduSpend = EDU_COSTS[policy.eduTier] || 0;
+    if (eduSpend > 0 && S.m >= eduSpend) S.m -= eduSpend;
+    bgDay();
+  }
+}
+
+// ============================================================
+// 12. 繪圖（支援道路分級、壅塞熱力、多尺寸建築與旋轉預覽）
+// ============================================================
+function poly(pts, fill, stroke) { cx.beginPath(); cx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) cx.lineTo(pts[i][0], pts[i][1]); cx.closePath(); cx.fillStyle = fill; cx.fill(); if (stroke !== false) { cx.strokeStyle = stroke || "rgba(20,30,25,.25)"; cx.lineWidth = .8; cx.stroke(); } }
+function tile(x, y, fill, stroke) { poly([P(x, y), P(x + 1, y), P(x + 1, y + 1), P(x, y + 1)], fill, stroke || false); }
+function box(x0, y0, x1, y1, z0, z1, cR, cL, cT) {
+  const a = P(x0, y1, z0), b = P(x1, y1, z0), c = P(x1, y0, z0), a1 = P(x0, y1, z1), b1 = P(x1, y1, z1), c1 = P(x1, y0, z1), d1 = P(x0, y0, z1);
+  poly([a, b, b1, a1], cL); poly([b, c, c1, b1], cR); if (cT) poly([d1, c1, b1, a1], cT);
+}
+function roofBox(x0, y0, x1, y1, h, rh, e, f) {
+  const T = P(x0 - e, y0 - e, h), Rr = P(x1 + e, y0 - e, h), B = P(x1 + e, y1 + e, h), L = P(x0 - e, y1 + e, h);
+  const A = P((x0 + x1) / 2, (y0 + y1) / 2, h + rh);
+  poly([T, L, A], f[2]); poly([T, Rr, A], f[2]); poly([L, B, A], f[1]); poly([B, Rr, A], f[0]);
+  return { B, L, Rr };
+}
+function bridgeTile(x, y, bgType) {
+  const isStone = bgType === "b_stone";
+  const ew = (bridges.has(K(x - 1, y)) || bridges.has(K(x + 1, y)) || !(bridges.has(K(x, y - 1)) || bridges.has(K(x, y + 1))));
+  const cR = isStone ? "#9ca19e" : "#a98862", cL = isStone ? "#797e7b" : "#7d6143", cT = isStone ? "#b8bdb9" : "#c19a6e";
+  box(x, y, x + 1, y + 1, 0, 4, cR, cL, cT);
+  if (ew) { box(x, y, x + 1, y + .08, 4, 10, cL, cL, cR); box(x, y + .92, x + 1, y + 1, 4, 10, cL, cL, cR); }
+  else { box(x, y, x + .08, y + 1, 4, 10, cL, cL, cR); box(x + .92, y, x + 1, y + 1, 4, 10, cL, cL, cR); }
+}
+
+function drawB(b, ts) {
+  const T = TY[b.t]; if (T.cat === "park") return drawPark(b, T, ts); if (T.cat === "farm") return drawFarm(b, T, ts);
+  const p = Math.max(.15, b.p), h = T.h * p, rh = T.r * p, m = .1, e = .14, x = b.x, y = b.y, done = b.p >= 1, dc = T.d;
+  const [bw, bh] = getDims(T, b.dir || 0);
+  if (!done) cx.globalAlpha = .8;
+  box(x + m, y + m, x + bw - m, y + bh - m, 0, h, T.wCol[0], T.wCol[1], null);
+  const c = roofBox(x + m, y + m, x + bw - m, y + bh - m, h, rh, e, T.f);
+  if (done) {
+    // 依旋轉方向決定大門所在牆面
+    const dir = b.dir || 0;
+    if (dir === 0) poly([P(x + bw * .4, y + bh - m, 0), P(x + bw * .6, y + bh - m, 0), P(x + bw * .6, y + bh - m, h * .58), P(x + bw * .4, y + bh - m, h * .58)], "#4b3a2c");
+    else if (dir === 1) poly([P(x + bw - m, y + bh * .4, 0), P(x + bw - m, y + bh * .6, 0), P(x + bw - m, y + bh * .6, h * .58), P(x + bw - m, y + bh * .4, h * .58)], "#4b3a2c");
+    const lamp = q => { cx.fillStyle = "#e0553a"; cx.beginPath(); cx.arc(q[0], q[1] + 4, 3, 0, 7); cx.fill(); };
+    if (dc === "lan") lamp(c.B); else if (dc === "lan2") { lamp(c.L); lamp(c.Rr); }
+    else if (dc === "flag") { const t = h + rh + 12; box(x + bw - .18, y + bh - .18, x + bw - .14, y + bh - .14, h, t, "#6b4f3a", "#523b2b", null); poly([P(x + bw - .14, y + bh - .16, t), P(x + bw - .14, y + bh - .16, t - 7), P(x + bw + .2, y + bh - .16, t - 3.5)], "#d9a441"); }
+    else if (dc === "mill") { const q = P(x + bw - m + .05, y + bh * .5, h * .45); cx.strokeStyle = "#6b4f3a"; cx.lineWidth = 2; cx.beginPath(); cx.arc(q[0], q[1], 8, 0, 7); cx.moveTo(q[0] - 8, q[1]); cx.lineTo(q[0] + 8, q[1]); cx.moveTo(q[0], q[1] - 8); cx.lineTo(q[0], q[1] + 8); cx.stroke(); }
+  }
+  cx.globalAlpha = 1;
+  if (!done) {
+    cx.strokeStyle = "#8a6a3a"; cx.lineWidth = 1.4;
+    [[x + m, y + m], [x + bw - m, y + m], [x + bw - m, y + bh - m], [x + m, y + bh - m]].forEach(q => { const a = P(q[0], q[1], 0), z = P(q[0], q[1], h + 10); cx.beginPath(); cx.moveTo(a[0], a[1]); cx.lineTo(z[0], z[1]); cx.stroke(); });
+  } else if (!ok(b)) {
+    const q = P(x + bw * .5, y + bh * .5, h + rh + 14); cx.fillStyle = "#c0392b"; cx.beginPath(); cx.arc(q[0], q[1], 7, 0, 7); cx.fill();
+    cx.fillStyle = "#fff"; cx.font = "bold 10px sans-serif"; cx.textAlign = "center"; cx.fillText("!", q[0], q[1] + 3.5);
+  }
+}
+function drawPark(b, T, ts, part) {
+  const p = Math.max(.2, b.p), x = b.x, y = b.y, c = P(x + .5, y + .5), X = c[0], Y = c[1];
+  const shade = (rx, ry) => { cx.fillStyle = "rgba(0,0,0,.16)"; cx.beginPath(); cx.ellipse(X, Y, rx * p, ry * p, 0, 0, 7); cx.fill(); };
+  const k = T.k;
+  if (k === "willow") {
+    shade(16, 7); box(x + .44, y + .44, x + .56, y + .56, 0, 14 * p, "#6b4f3a", "#523b2b", "#7a5d45");
+    cx.fillStyle = "#6a9a52"; cx.beginPath(); cx.arc(X, Y - 24 * p, 13 * p, 0, 7); cx.fill();
+  } else if (k === "flower") {
+    poly([P(x + .1, y + .1), P(x + .9, y + .1), P(x + .9, y + .9), P(x + .1, y + .9)], "#86ad62", false);
+    [[.25, .3, "#e0708a"], [.6, .25, "#f0c14a"], [.4, .55, "#c27ae0"], [.7, .6, "#f0f0f0"]].forEach(f => { const q = P(x + f[0], y + f[1], 2 * p); cx.fillStyle = f[2]; cx.beginPath(); cx.arc(q[0], q[1], 2.4, 0, 7); cx.fill(); });
+  } else if (k === "pond") {
+    poly([P(x + .04, y + .04), P(x + .96, y + .04), P(x + .96, y + .96), P(x + .04, y + .96)], "#9a978a", false);
+    poly([P(x + .14, y + .14), P(x + .86, y + .14), P(x + .86, y + .86), P(x + .14, y + .86)], "hsl(195 45% 55%)", false);
+    if (b.br) box(x, y + .36, x + 1, y + .64, 3, 6, "#c19a6e", "#8a6a48", "#d3ad80");
+  } else if (k === "pavilion") {
+    const h = 22 * p;
+    if (part !== 1) { poly([P(x + .08, y + .08), P(x + .92, y + .08), P(x + .92, y + .92), P(x + .08, y + .92)], "#cfc5ae", false); [[.2, .2], [.8, .2], [.2, .8], [.8, .8]].forEach(q => box(x + q[0] - .03, y + q[1] - .03, x + q[0] + .03, y + q[1] + .03, 0, h, "#a8553a", "#85402b", null)); }
+    if (part !== 0) roofBox(x + .04, y + .04, x + .96, y + .96, h, 12 * p, .08, ["#c4503a", "#9a3a28", "#d96a52"]);
+  } else if (k === "bamboo") {
+    shade(14, 6); [[.25, .3, 28], [.55, .25, 34], [.7, .65, 32], [.3, .7, 30]].forEach(s => { box(x + s[0] - .03, y + s[1] - .03, x + s[0] + .03, y + s[1] + .03, 0, s[2] * p, "#6f9a55", "#58803f", "#84ad69"); });
+  } else {
+    shade(15, 6); poly([[X - 13 * p, Y], [X - 7 * p, Y - 14 * p], [X + 3 * p, Y - 17 * p], [X + 13 * p, Y - 5 * p], [X + 10 * p, Y + 2]], "#8d9091");
+  }
+}
+function drawFarm(b, T, ts) {
+  const p = Math.max(.2, b.p), x = b.x, y = b.y, g = (b.prog || 0) % 1;
+  const [bw, bh] = getDims(T, b.dir || 0);
+  if (b.t === "f4") {
+    // 2×2 牧場
+    poly([P(x + .06, y + .06), P(x + bw - .06, y + .06), P(x + bw - .06, y + bh - .06), P(x + .06, y + bh - .06)], "#7a9e52", "#5c432c");
+    box(x + .2, y + .2, x + .9, y + .8, 0, 14 * p, "#b08a5e", "#8a6a44", "#c4503a");
+    return;
+  }
+  const col = b.t === "f2" ? (g < .5 ? "#5aa87a" : "#d9c252") : b.t === "f5" ? "#4e8a48" : b.t === "f6" ? "#6d8c5e" : b.t === "f7" ? "#78a656" : (g < .5 ? "#7fb45a" : g < .85 ? "#a9bf55" : "#d6b84a");
+  const baseCol = b.t === "f2" ? "#6c8c78" : "#8a6a44";
+  const hg = (3 + g * 9) * p;
+  poly([P(x + .06, y + .06), P(x + .94, y + .06), P(x + .94, y + .94), P(x + .06, y + .94)], baseCol, false);
+  cx.strokeStyle = col; cx.lineWidth = 1.6;
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 5; j++) { const q = P(x + .18 + i * .2, y + .14 + j * .17, 0); cx.beginPath(); cx.moveTo(q[0], q[1]); cx.lineTo(q[0] + Math.sin(ts / 500 + i + j) * .8, q[1] - hg); cx.stroke(); }
+}
+
+const SHIRT = ["#b8452e", "#3f6f8a", "#8a6a2c", "#5a7a46", "#8a5f7a", "#c07a3a"];
+function drawRes(r, ts) {
+  const k = K(Math.floor(r.x), Math.floor(r.y));
+  const onBridge = bridges.has(k) || (bm.get(k) && bm.get(k).br);
+  const q = P(r.x, r.y, onBridge ? 4 : 0), x = q[0], y = q[1], bob = Math.abs(Math.sin(ts / 140 + r.id)) * 1.2;
+  cx.fillStyle = "rgba(0,0,0,.22)"; cx.beginPath(); cx.ellipse(x, y, 4, 2, 0, 0, 7); cx.fill();
+  cx.fillStyle = SHIRT[r.id % SHIRT.length]; cx.fillRect(x - 2, y - 9 - bob, 4, 7);
+  cx.fillStyle = "#e8cfa8"; cx.beginPath(); cx.arc(x, y - 11 - bob, 2.4, 0, 7); cx.fill();
+}
+function boat(x, y, ts) {
+  const z = 1 + Math.sin(ts / 500 + y) * 1.2;
+  box(x - .2, y, x + .2, y + 1.2, z, z + 5, "#6b4f3a", "#523b2b", "#8a6a50");
+  box(x - .02, y + .5, x + .02, y + .54, z + 5, z + 24, "#4b3a2c", "#4b3a2c", null);
+  poly([P(x, y + .3, z + 22), P(x, y + .3, z + 9), P(x, y + .85, z + 9), P(x, y + .85, z + 22)], "#efe7d2");
+}
+
+function draw(ts) {
+  cx.setTransform(DPR, 0, 0, DPR, 0, 0); cx.fillStyle = "#a9c3b6"; cx.fillRect(0, 0, VW, VH);
+  const T0 = [DPR * Z, 0, 0, DPR * Z, DPR * (VW / 2 - cam.x * Z), DPR * (VH / 2 - cam.y * Z)];
+  cx.setTransform(T0[0], T0[1], T0[2], T0[3], T0[4], T0[5]);
+  const d0 = Math.floor((cam.x - VW / 2 / Z) / HW) - 2, d1 = Math.ceil((cam.x + VW / 2 / Z) / HW) + 2;
+  const s0 = Math.floor((cam.y - VH / 2 / Z) / HH) - 3, s1 = Math.ceil((cam.y + VH / 2 / Z) / HH) + 5;
+  const c0x = Math.floor((s0 + d0) / 2 / CH) - 1, c1x = Math.ceil((s1 + d1) / 2 / CH) + 1;
+  const c0y = Math.floor((s0 - d1) / 2 / CH) - 1, c1y = Math.ceil((s1 - d0) / 2 / CH) + 1;
+  for (let cy = c0y; cy <= c1y; cy++) for (let cx0 = c0x; cx0 <= c1x; cx0++) genChunk(cx0, cy);
+  for (let s = s0; s <= s1; s++) for (let d = d0 + (((s + d0) % 2) + 2) % 2; d <= d1; d += 2) {
+    const x = (s + d) / 2, y = (s - d) / 2; if (!inW(x, y)) continue;
+    if (isW(x, y)) {
+      tile(x, y, WC[(((Math.sin(ts / 700 + x * .8 + y * .5) + 1) * 3.5) | 0)]);
+      const bg = bridges.get(K(x, y)); if (bg) bridgeTile(x, y, bg);
+    } else if (hasRoad(x, y)) {
+      const rt = getRoadType(x, y);
+      const RT = ROAD_TYPES[rt] || ROAD_TYPES.r_stone;
+      tile(x, y, conn.has(K(x, y)) ? RT.connCol : RT.col, RT.stroke);
+      // 道路壅塞度熱力疊層
+      const tr = getTraffic(x, y);
+      if (tr > RT.cap * 0.75) {
+        const ratio = Math.min(1, (tr - RT.cap * 0.75) / (RT.cap * 0.6));
+        tile(x, y, ratio > 0.6 ? "rgba(214,69,53,0.45)" : "rgba(230,162,48,0.38)", false);
+      }
+      if (rt === "r_post") {
+        box(x + .25, y + .25, x + .75, y + .75, 0, 10, "#9e6b3b", "#7a512b", "#c44536");
+      }
+      const zn = getZone(x, y);
+      if (zn && TY[zn]) tile(x, y, TY[zn].color, TY[zn].stroke);
+    } else {
+      const b = terrainAt(x, y) || "meadow"; const curGR = GR_SEASON[getCurSeason()] || GR_SEASON[0]; const pal = curGR[b] || curGR.meadow;
+      tile(x, y, pal[hs(x, y) % 3]);
+      const zn = getZone(x, y);
+      if (zn && TY[zn]) tile(x, y, TY[zn].color, TY[zn].stroke);
+    }
+  }
+  poly([P(RX, DOCK.y + .2), P(RX + .8, DOCK.y + .2), P(RX + .8, DOCK.y + .8), P(RX, DOCK.y + .8)], "#8b6b4b");
+
+  // 區劃框選或建築多尺寸/旋轉預覽
+  if (tool === "zone" && zoneBoxStart && hov) {
+    const x0 = Math.min(zoneBoxStart[0], hov[0]), x1 = Math.max(zoneBoxStart[0], hov[0]);
+    const y0 = Math.min(zoneBoxStart[1], hov[1]), y1 = Math.max(zoneBoxStart[1], hov[1]);
+    const zObj = TY[sel.zone] || TY.z_res;
+    for (let zx = x0; zx <= x1; zx++) for (let zy = y0; zy <= y1; zy++) {
+      if (inW(zx, zy) && !isW(zx, zy)) tile(zx, zy, zObj.color, zObj.stroke);
+    }
+  } else if (hov && tool !== "look" && inW(hov[0], hov[1])) {
+    const T = curT();
+    const okPlace = can(hov[0], hov[1]);
+    const fillCol = okPlace ? "rgba(110,220,140,.55)" : "rgba(220,90,70,.55)";
+    if (T && T.cat && T.cat !== "road" && T.cat !== "bridge" && T.cat !== "zone") {
+      const cells = getFootprint(hov[0], hov[1], T, buildDir);
+      cells.forEach(([cx0, cy0]) => { if (inW(cx0, cy0)) tile(cx0, cy0, fillCol, "#2c5e3b"); });
+    } else {
+      tile(hov[0], hov[1], fillCol);
+    }
+  }
+
+  const it = [], dk = dark(hr()), vis = (x, y) => { const s = x + y, d = x - y; return s >= s0 - 2 && s <= s1 + 2 && d >= d0 - 2 && d <= d1 + 2; };
+  forEachB(b => {
+    if (!vis(b.x, b.y)) return; const T = TY[b.t];
+    if (T.k === "pavilion") { it.push([b.x + b.y + .4, () => drawPark(b, T, ts, 0)]); it.push([b.x + b.y + 1.2, () => drawPark(b, T, ts, 1)]); }
+    else it.push([b.x + b.y + ((T.w || 1) + (T.d_len || 1)) * 0.25, () => drawB(b, ts)]);
+  });
+  activeResidents.forEach(id => { const r = residents.get(id); if (!r || (dk > .6 && r.state === "sleep")) return; it.push([r.x + r.y, () => drawRes(r, ts)]); });
+  const ty = Math.round(cam.y / HH - RX), st = Math.floor((ty - 50) / 100) * 100;
+  for (let k = 0; k < 5; k++) { const by = st + ((ts / 1000 * .45 + k * 20) % 100), bx = RX + (k % 2 ? .65 : 1.3); if (by > 0 && by < N - 2) it.push([bx + by + .6, () => boat(bx, by, ts)]); }
+  it.sort((a, b) => a[0] - b[0]); it.forEach(o => o[1]());
+  cx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (dk > 0) {
+    cx.fillStyle = "rgba(16,26,58," + (.48 * dk) + ")"; cx.fillRect(0, 0, VW, VH);
+    cx.setTransform(T0[0], T0[1], T0[2], T0[3], T0[4], T0[5]); cx.globalCompositeOperation = "lighter";
+    forEachB(b => { if (b.p < 1 || TY[b.t].cat === "park" || TY[b.t].cat === "farm" || !vis(b.x, b.y)) return; const q = P(b.x + .5, b.y + 1, 10); cx.fillStyle = "rgba(255,176,80," + (.32 * dk) + ")"; cx.beginPath(); cx.arc(q[0], q[1], 14, 0, 7); cx.fill(); });
+    cx.globalCompositeOperation = "source-over";
+  }
+  drawWeatherFX(ts);
+}
+
+let lastFxTs = 0;
+function drawWeatherFX(ts) {
+  const fdt = Math.min(0.05, (ts - lastFxTs) / 1000 || 0.016); lastFxTs = ts;
+  const w = weatherId;
+  if (w === "rain" || w === "storm") {
+    const isStorm = w === "storm", count = isStorm ? 140 : 90, vx = isStorm ? -0.28 : -0.10, vy = isStorm ? 1.45 : 1.05;
+    cx.strokeStyle = isStorm ? "rgba(195,218,238,0.6)" : "rgba(210,230,245,0.5)"; cx.lineWidth = isStorm ? 1.4 : 1.1; cx.beginPath();
+    for (let i = 0; i < count; i++) { const p = wxParticles[i]; p.x = (p.x + vx * p.z * fdt + 1) % 1; p.y = (p.y + vy * p.z * fdt) % 1; const sx = p.x * VW, sy = p.y * VH, len = (isStorm ? 18 : 13) * p.z; cx.moveTo(sx, sy); cx.lineTo(sx + vx * len * 0.9, sy + len); }
+    cx.stroke();
+  } else if (w === "snow") {
+    cx.fillStyle = "rgba(255,255,255,0.85)"; cx.beginPath();
+    for (let i = 0; i < 100; i++) { const p = wxParticles[i]; p.y = (p.y + 0.16 * p.z * fdt) % 1; p.x = (p.x + Math.sin(ts / 900 + p.ph) * 0.04 * fdt + 1) % 1; const sx = p.x * VW, sy = p.y * VH, rad = 1.6 + p.z * 1.8; cx.moveTo(sx + rad, sy); cx.arc(sx, sy, rad, 0, 6.283); }
+    cx.fill();
+  }
+}
+
+// ============================================================
+// 13. 輸入與互動
+// ============================================================
+function fit() { DPR = Math.min(2, window.devicePixelRatio || 1); VW = innerWidth; VH = innerHeight; cv.width = VW * DPR; cv.height = VH * DPR; }
+const clampCam = () => { cam.x = Math.max(-N * HW, Math.min(N * HW, cam.x)); cam.y = Math.max(0, Math.min(2 * N * HH, cam.y)); };
+function zoomAt(px, py, nz) { nz = Math.max(.3, Math.min(2.4, nz)); const wx = (px - VW / 2) / Z + cam.x, wy = (py - VH / 2) / Z + cam.y; Z = nz; cam.x = wx - (px - VW / 2) / Z; cam.y = wy - (py - VH / 2) / Z; clampCam(); }
+const tileAt = (px, py) => { const wx = (px - VW / 2) / Z + cam.x, wy = (py - VH / 2) / Z + cam.y; return [Math.floor((wx / HW + wy / HH) / 2), Math.floor((wy / HH - wx / HW) / 2)]; };
+const ptr = new Map(); let drag = null, pinch = null, lastT = null;
+cv.addEventListener("contextmenu", e => e.preventDefault());
+cv.addEventListener("pointerdown", e => {
+  if (introOpen) return;
+  cv.setPointerCapture(e.pointerId); ptr.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY });
+  if (ptr.size === 2) { const v = Array.from(ptr.values()); pinch = { d: Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y), z: Z, mx: (v[0].x + v[1].x) / 2, my: (v[0].y + v[1].y) / 2 }; drag = { moved: true }; return; }
+  const t = tileAt(e.clientX, e.clientY); hov = t; const pan = e.button === 2 || e.button === 1;
+  if (!pan && tool === "zone") { zoneBoxStart = t; drag = { moved: false, pan: false, paint: false, zoning: true }; return; }
+  drag = { moved: false, pan, paint: !pan && (tool === "road" || tool === "del" || tool === "bridge") };
+  if (drag.paint) { act(t[0], t[1]); lastT = t[0] + "," + t[1]; }
+});
+cv.addEventListener("pointermove", e => {
+  const p = ptr.get(e.pointerId);
+  if (!p) { if (e.pointerType === "mouse") hov = tileAt(e.clientX, e.clientY); return; }
+  if (ptr.size === 2 && pinch) {
+    p.x = e.clientX; p.y = e.clientY; const v = Array.from(ptr.values()), d = Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y), mx = (v[0].x + v[1].x) / 2, my = (v[0].y + v[1].y) / 2;
+    cam.x -= (mx - pinch.mx) / Z; cam.y -= (my - pinch.my) / Z; pinch.mx = mx; pinch.my = my; zoomAt(mx, my, pinch.z * d / pinch.d); return;
+  }
+  hov = tileAt(e.clientX, e.clientY); if (!drag) return;
+  if (drag.zoning) { p.x = e.clientX; p.y = e.clientY; return; }
+  if (drag.paint) { const k = hov[0] + "," + hov[1]; if (k !== lastT) { lastT = k; act(hov[0], hov[1]); } p.x = e.clientX; p.y = e.clientY; return; }
+  if (!drag.moved && Math.hypot(e.clientX - p.sx, e.clientY - p.sy) > 6) drag.moved = true;
+  if (drag.moved) { cam.x -= (e.clientX - p.x) / Z; cam.y -= (e.clientY - p.y) / Z; clampCam(); }
+  p.x = e.clientX; p.y = e.clientY;
+});
+function up(e) {
+  const p = ptr.get(e.pointerId); if (!p) return;
+  if (drag && drag.zoning && zoneBoxStart && e.type === "pointerup") {
+    const endT = tileAt(e.clientX, e.clientY);
+    const x0 = Math.max(0, Math.min(zoneBoxStart[0], endT[0])), x1 = Math.min(N - 1, Math.max(zoneBoxStart[0], endT[0]));
+    const y0 = Math.max(0, Math.min(zoneBoxStart[1], endT[1])), y1 = Math.min(N - 1, Math.max(zoneBoxStart[1], endT[1]));
+    const zObj = TY[sel.zone] || TY.z_res;
+    let cnt = 0, spent = 0;
+    for (let zx = x0; zx <= x1; zx++) for (let zy = y0; zy <= y1; zy++) {
+      if (isW(zx, zy)) continue;
+      if (zObj.biome) {
+        if (S.m >= zObj.c && !getB(zx, zy)) {
+          S.m -= zObj.c; spent += zObj.c; setTerrainOverride(zx, zy, zObj.biome); cnt++;
+        }
+      } else {
+        setZone(zx, zy, sel.zone); cnt++;
+      }
+    }
+    if (zObj.biome) say("已整地改造 " + cnt + " 格為「" + zObj.n + "」（花費 " + spent + " 文）");
+    else say(sel.zone === "z_clr" ? "已清除 " + cnt + " 格行政區劃" : "已劃定 " + cnt + " 格為「" + zObj.n + "」");
+    zoneBoxStart = null;
+  } else if (ptr.size === 1 && drag && !drag.moved && !drag.paint && !drag.pan && e.type === "pointerup") { const t = tileAt(e.clientX, e.clientY); act(t[0], t[1]); }
+  ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; drag = ptr.size === 1 ? { moved: true } : null;
+  if (e.pointerType !== "mouse") hov = null; dirty();
+}
+cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+cv.addEventListener("wheel", e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, Z * Math.exp(-e.deltaY * .0015)); dirty(); }, { passive: false });
+
+function rotateBuild() {
+  buildDir = (buildDir + 1) % 4;
+  say("建築朝向：" + ["朝南 (正前)", "朝東 (右側)", "朝北 (背側)", "朝西 (左側)"][buildDir]);
+}
+$("#bRot").onclick = rotateBuild;
+
+let debugOpen = false;
+function toggleDebug() { debugOpen = !debugOpen; $("#debug").style.display = debugOpen ? "flex" : "none"; if (debugOpen) renderDebug(); }
+function renderDebug() {
+  if (!debugOpen) return;
+  $("#debug").textContent = "DEBUG [D關閉]\n地區：" + REGIONS[worldRegion].name + "｜時間：" + (Math.floor(S.t / 360) + 1) + "日 " + hr().toFixed(1) + "時\n道路連通：" + conn.size + "｜居民：" + residents.size + "｜鎮庫：" + Math.floor(S.m);
+}
+addEventListener("keydown", e => {
+  const k = e.key, s = 40 / Z;
+  if (k === "r" || k === "R") { rotateBuild(); return; }
+  if (k === "d" || k === "D") { toggleDebug(); return; }
+  if (k === "ArrowLeft" || k === "a" || k === "A") cam.x -= s;
+  else if (k === "ArrowRight") cam.x += s;
+  else if (k === "ArrowUp" || k === "w" || k === "W") cam.y -= s;
+  else if (k === "ArrowDown" || k === "s" || k === "S") cam.y += s;
+  else if (k === "Escape") pick("look");
+  else if (k === " ") { e.preventDefault(); togglePause(); }
+  clampCam();
+});
+function togglePause() { paused = !paused; $("#bPause").textContent = paused ? "繼續" : "暫停"; }
+$("#bPause").onclick = togglePause; $("#zd").onclick = toggleDebug;
+$("#backToBank").addEventListener("click", e => { e.preventDefault(); location.assign(new URL("./index.html", location.href).href); });
+$("#bSpd").onclick = () => { speed = speed === 1 ? 2 : speed === 2 ? 4 : 1; $("#bSpd").textContent = speed + "×"; dirty(); };
+$("#zi").onclick = () => { zoomAt(VW / 2, VH / 2, Z * 1.25); dirty(); }; $("#zo").onclick = () => { zoomAt(VW / 2, VH / 2, Z / 1.25); dirty(); };
+$("#zh").onclick = home;
+$("#bReset").onclick = () => { if (confirm("要清除目前的小鎮，重新選擇世界地區開始嗎？")) { try { ["town_save_v6", "town_save_v5", "town_save_v4"].forEach(k => localStorage.removeItem(k)); } catch (e) {} location.reload(); } };
+
+// ============================================================
+// 14. 面板渲染：經濟總覽、建築百科、政務、名冊、史志
+// ============================================================
+function renderEco() {
+  const sIdx = getCurSeason();
+  const rows = Object.keys(GD).map(g => {
+    const T = GD[g];
+    const sw = (T.sNeed && T.sNeed[sIdx]) ? "×" + T.sNeed[sIdx].toFixed(2) : "—";
+    return "<tr><td>" + T.n + "</td><td>" + Math.floor(SUP[g] || 0) + "</td><td>" + (mp(g) * 1.35).toFixed(1) + "</td><td>" + T.shelf + "</td><td>" + sw + "</td><td>" + (T.need ? Math.round((ECO.sat[g] == null ? 1 : ECO.sat[g]) * 100) + "%" : "—") + "</td></tr>";
+  }).join("");
+  $("#ecoBody").innerHTML = "<p>公庫 <b>" + Math.floor(S.m) + "</b>　居民財產 <b>" + Math.floor(S.rp) + "</b>　商業資金 <b>" + Math.floor(ECO.biz) + "</b>（景元）</p>" +
+    "<p>所在世界：<b>" + REGIONS[worldRegion].name + "</b>（" + REGIONS[worldRegion].desc + "）｜人口 " + residents.size + "｜幸福 " + Math.round(ECO.hap) + "%</p>" +
+    "<table><tr><th>商品</th><th>庫存</th><th>零售價</th><th>保存期</th><th>本季需求</th><th>滿足度</th></tr>" + rows + "</table>" +
+    '<p class="nt">註：生鮮（蔬菜、肉類、麵食）在夏季腐敗速度加快，興建「糧倉」可減緩全鎮損耗 20%；冬季「燈油」與「肉類」需求顯著上升。</p>';
+}
+
+function renderPedia() {
+  const tabs = [["all", "全部"], ["house", "住宅升級"], ["farm", "農牧"], ["work", "百工作坊"], ["shop", "商鋪"], ["civic", "公建"], ["culture", "文教"], ["park", "園景"]];
+  const tabHtml = '<div class="pedia-tabs">' + tabs.map(t => '<button class="pedia-tab' + (pediaTab === t[0] ? ' on' : '') + '" data-ptab="' + t[0] + '">' + t[1] + '</button>').join("") + '</div>';
+  const list = Object.values(TY).filter(v => v.cat !== "zone" && v.cat !== "bridge" && (pediaTab === "all" || v.cat === pediaTab));
+  const cards = list.map(v => {
+    const dim = (v.w || 1) + "×" + (v.d_len || 1);
+    const recStr = v.rec ? ("配方：" + (Object.keys(v.rec.in).map(g => GD[g].n + "×" + v.rec.in[g]).join("+") || "自然採集") + " → " + Object.keys(v.rec.out).map(g => GD[g].n + "×" + v.rec.out[g]).join("+")) : "";
+    const upStr = v.upTo ? ("升級路線：→ <b>" + TY[v.upTo].n + "</b>（需 " + v.upCost + "文" + (Object.keys(v.upReq || {}).map(g => "+" + GD[g].n + "×" + v.upReq[g]).join("")) + "）") : "";
+    return '<div class="pedia-card"><h4><span>' + v.n + ' <small style="opacity:.7">[' + dim + ']</small></span><span>' + v.c + ' 文</span></h4>' +
+      '<div style="font-size:.8rem;opacity:.88">' + (v.desc || "") + '</div>' +
+      (recStr ? '<div style="font-size:.78rem;color:#2e6f40;margin-top:2px">' + recStr + '</div>' : '') +
+      (upStr ? '<div style="font-size:.78rem;color:#8a5f12;margin-top:2px">' + upStr + '</div>' : '') + '</div>';
+  }).join("");
+  $("#pediaBody").innerHTML = tabHtml + cards;
+}
+$("#pediaBody").addEventListener("click", e => { const b = e.target.closest(".pedia-tab"); if (!b) return; pediaTab = b.dataset.ptab; renderPedia(); });
+
+function closeAllModals() {
+  ecoOpen = false; $("#eco").style.display = "none";
+  pediaOpen = false; $("#pediaModal").style.display = "none";
+  rosterOpen = false; $("#roster").style.display = "none";
+  chronOpen = false; $("#chron").style.display = "none";
+  stageOpen = false; $("#stageModal").style.display = "none";
+  wxOpen = false; $("#wxModal").style.display = "none";
+  govOpen = false; $("#govModal").style.display = "none";
+  resCardR = null; $("#resCard").style.display = "none"; hideCard();
+}
+
+function autoAssignJobs() {
+  const openBuildings = allBuildings().filter(b => b.p >= 1 && TY[b.t].jobs && ok(b) && (b.workers || []).length < (TY[b.t].jobs || 0));
+  if (!openBuildings.length) return say("目前沒有空缺的職位");
+  let assigned = 0; const day = Math.floor(S.t / 360) + 1;
+  residents.forEach(r => {
+    if (r.age < 14 || r.jobKey) return;
+    const target = openBuildings.find(b => (b.workers || []).length < (TY[b.t].jobs || 0));
+    if (target) { target.workers = target.workers || []; target.workers.push(r.id); r.jobKey = K(target.x, target.y); r.log.push("第" + day + "日 奉派至" + TY[target.t].n + "工作"); assigned++; }
+  });
+  if (assigned > 0) { say("已為 " + assigned + " 位待業居民安排工作"); tick(); renderRoster(); dirty(); }
+}
+
+function renderRoster() {
+  const filter = $("#rosterFilter").value, all = Array.from(residents.values());
+  const list = all.filter(r => filter === "unemployed" ? (r.age >= 14 && !r.jobKey) : filter === "employed" ? !!r.jobKey : filter === "child" ? r.age < 14 : true);
+  const jobsList = allBuildings().filter(b => b.p >= 1 && TY[b.t].jobs && ok(b));
+  const rows = list.map(r => {
+    const opts = ['<option value="">' + (r.age < 14 ? "未滿14歲" : "— 待業 —") + '</option>'].concat(jobsList.map(b => {
+      const k = K(b.x, b.y), cur = (b.workers || []).length, cap = TY[b.t].jobs || 3;
+      return '<option value="' + k + '"' + (r.jobKey === k ? " selected" : "") + '>' + TY[b.t].n + ' (' + cur + '/' + cap + ')</option>';
+    })).join("");
+    const rk = getCareerRank(r);
+    return '<tr><td><span class="r-link" data-rid="' + r.id + '">' + r.name + '</span>' + (r.jobKey ? '<span class="rank-badge">' + rk.title + '</span>' : '') + '</td><td>' + (r.gender === "f" ? "女" : "男") + '·' + r.age + '歲</td><td>' + (r.age < 14 ? "幼童" : '<select class="r-job-sel" data-rid="' + r.id + '">' + opts + '</select>') + '</td><td>' + Math.floor(r.wallet || 0) + '文</td><td>' + Math.round(r.mood) + '%</td></tr>';
+  }).join("");
+  $("#rosterBody").innerHTML = '<p>總人口 <b>' + all.length + '</b> 人（已就業 ' + all.filter(r => r.jobKey).length + ' 人）</p><table><tr><th>姓名</th><th>性別年齡</th><th>職業指派</th><th>錢包</th><th>心情</th></tr>' + (rows || '<tr><td colspan="5">尚無居民</td></tr>') + '</table>';
+}
+$("#rosterBody").addEventListener("click", e => { const el = e.target.closest(".r-link"); if (!el) return; const r = residents.get(Number(el.dataset.rid)); if (r) { closeAllModals(); centerOn(r.x, r.y); clampCam(); showResident(r); } });
+$("#rosterBody").addEventListener("change", e => {
+  const selEl = e.target.closest(".r-job-sel"); if (!selEl) return;
+  const r = residents.get(Number(selEl.dataset.rid)); if (!r) return;
+  const newKey = selEl.value ? Number(selEl.value) : null;
+  if (r.jobKey != null) { const oldB = bm.get(r.jobKey); if (oldB && oldB.workers) { const idx = oldB.workers.indexOf(r.id); if (idx >= 0) oldB.workers.splice(idx, 1); } }
+  r.jobKey = null;
+  if (newKey != null) { const newB = bm.get(newKey); if (newB && (newB.workers || []).length < (TY[newB.t].jobs || 3)) { newB.workers = newB.workers || []; newB.workers.push(r.id); r.jobKey = newKey; } }
+  tick(); renderRoster(); dirty();
+});
+$("#rosterFilter").onchange = renderRoster; $("#rosterAutoJob").onclick = autoAssignJobs;
+$("#bRoster").onclick = () => { closeAllModals(); rosterOpen = true; $("#roster").style.display = "flex"; renderRoster(); };
+$("#rosterX").onclick = () => { rosterOpen = false; $("#roster").style.display = "none"; };
+
+function renderChronicle() {
+  const st = STAGES[townStage];
+  $("#chronBody").innerHTML = '<p>當前規模：<b>' + st.name + '</b>（' + st.desc + '）</p>' + chronicle.slice().reverse().map(c => '<div class="chron-item"><span class="chron-tag">' + c.tag + '</span><b>第 ' + c.day + ' 日</b>　' + c.text + '</div>').join("");
+}
+function renderStageModal() {
+  const cur = STAGES[townStage], nxt = STAGES[townStage + 1];
+  const rows = STAGES.map((st, idx) => '<tr class="' + (idx === townStage ? "stg-cur" : "") + '"><td>' + (idx === townStage ? "▶ " : "") + st.name + '</td><td>' + st.desc + '</td></tr>').join("");
+  $("#stageBody").innerHTML = '<div class="stg-box">目前規模：<b>' + cur.name + '</b>' + (nxt ? '<br>下一階段「<b>' + nxt.name + '</b>」：' + nxt.desc : '<br>已達最高繁華都會！') + '</div><table><tr><th>規模等級</th><th>晉升標準</th></tr>' + rows + '</table>';
+}
+$("#stageBadge").onclick = () => { closeAllModals(); stageOpen = true; $("#stageModal").style.display = "flex"; renderStageModal(); };
+$("#stageX").onclick = () => { stageOpen = false; $("#stageModal").style.display = "none"; };
+
+function renderWxModal() {
+  const sObj = SEASONS[getCurSeason()], wObj = getCurWeather();
+  const seasonBtns = ['<button class="wx-opt' + (seasonAuto ? ' on' : '') + '" data-sa="1">自動輪替</button>'].concat(SEASONS.map(s => '<button class="wx-opt' + (!seasonAuto && seasonManual === s.id ? ' on' : '') + '" data-sm="' + s.id + '">' + s.full + '</button>')).join("");
+  const wxBtns = ['<button class="wx-opt' + (weatherAuto ? ' on' : '') + '" data-wa="1">自動變化</button>'].concat(WEATHERS.map(w => '<button class="wx-opt' + (!weatherAuto && weatherId === w.id ? ' on' : '') + '" data-wi="' + w.id + '">' + w.icon + ' ' + w.name + '</button>')).join("");
+  $("#wxBody").innerHTML = '<div class="stg-box"><div>當前時節：<b>' + sObj.full + '</b> — ' + sObj.desc + '</div><div>當前天象：<b>' + wObj.icon + ' ' + wObj.name + '</b> — ' + wObj.desc + '</div></div><div><b>季節設定</b></div><div class="wx-grid5">' + seasonBtns + '</div><div><b>天氣設定</b></div><div class="wx-grid">' + wxBtns + '</div>';
+}
+$("#wxBody").addEventListener("click", e => {
+  const btn = e.target.closest(".wx-opt"); if (!btn) return;
+  if (btn.dataset.sa) seasonAuto = true; else if (btn.dataset.sm != null) { seasonAuto = false; seasonManual = Number(btn.dataset.sm); }
+  else if (btn.dataset.wa) { weatherAuto = true; weatherTimer = 60; } else if (btn.dataset.wi) { weatherAuto = false; weatherId = btn.dataset.wi; }
+  updateWxBadge(); renderWxModal(); dirty();
+});
+$("#wxBadge").onclick = () => { closeAllModals(); wxOpen = true; $("#wxModal").style.display = "flex"; renderWxModal(); };
+$("#wxX").onclick = () => { wxOpen = false; $("#wxModal").style.display = "none"; };
+
+function renderGovModal() {
+  const cs = getCivicStats();
+  const taxOpts = ["低稅 (15%)", "常稅 (30%)", "重稅 (45%)"].map((n, i) => '<button class="pol-opt' + (policy.taxTier === i ? ' on' : '') + '" data-pt="taxTier" data-pv="' + i + '">' + n + '</button>').join("");
+  const eduOpts = ["節流 (0文/日)", "正常 (25文/日)", "興學 (65文/日)"].map((n, i) => '<button class="pol-opt' + (policy.eduTier === i ? ' on' : '') + '" data-pt="eduTier" data-pv="' + i + '">' + n + '</button>').join("");
+  const foodOpts = ["自由流通 (10%)", "常備囤糧 (25%)", "戰備重儲 (45%)"].map((n, i) => '<button class="pol-opt' + (policy.foodTier === i ? ' on' : '') + '" data-pt="foodTier" data-pv="' + i + '">' + n + '</button>').join("");
+  $("#govBody").innerHTML = '<div class="stg-box"><div>治安：<b>' + cs.security + '%</b>　消防：<b>' + cs.fireSafety + '%</b>　醫療：<b>' + cs.health + '%</b>　教育普及：<b>' + cs.eduRate + '%</b></div></div>' +
+    '<div><b>商稅稅率</b></div><div class="pol-grid">' + taxOpts + '</div>' +
+    '<div><b>教育投入</b></div><div class="pol-grid">' + eduOpts + '</div>' +
+    '<div><b>糧食儲備政策</b></div><div class="pol-grid">' + foodOpts + '</div>';
+}
+$("#govBody").addEventListener("click", e => { const btn = e.target.closest(".pol-opt"); if (!btn) return; policy[btn.dataset.pt] = Number(btn.dataset.pv); renderGovModal(); tick(); dirty(); });
+$("#bGov").onclick = () => { closeAllModals(); govOpen = true; $("#govModal").style.display = "flex"; renderGovModal(); };
+$("#govX").onclick = () => { govOpen = false; $("#govModal").style.display = "none"; };
+$("#bChron").onclick = () => { closeAllModals(); chronOpen = true; $("#chron").style.display = "flex"; renderChronicle(); };
+$("#chronX").onclick = () => { chronOpen = false; $("#chron").style.display = "none"; };
+$("#bPedia").onclick = () => { closeAllModals(); pediaOpen = true; $("#pediaModal").style.display = "flex"; renderPedia(); };
+$("#pediaX").onclick = () => { pediaOpen = false; $("#pediaModal").style.display = "none"; };
+$("#bObs").onclick = () => { obsMode = true; document.body.classList.add("obs"); closeAllModals(); obsTarget = null; obsTimer = 0; say("進入城鎮觀察模式"); };
+$("#obsExit").onclick = () => { obsMode = false; document.body.classList.remove("obs"); };
+$("#bEco").onclick = () => { closeAllModals(); ecoOpen = true; $("#eco").style.display = "flex"; renderEco(); };
+$("#ecoX").onclick = () => { ecoOpen = false; $("#eco").style.display = "none"; };
+
+function hud() {
+  const h = hr(), hh = Math.floor(h), mm = Math.floor((h - hh) * 60);
+  $("#sPop").textContent = residents.size; $("#sFood").textContent = Math.floor(ECO.food); $("#sHap").textContent = Math.round(ECO.hap); $("#sM").textContent = Math.floor(S.m);
+  $("#clk").textContent = "第" + (Math.floor(S.t / 360) + 1) + "日 " + pad(hh) + ":" + pad(mm) + "・" + SH[Math.floor(((hh + 1) % 24) / 2)] + "時";
+  if (ecoOpen) renderEco(); if (chronOpen) renderChronicle(); updateWxBadge();
+  if (debugOpen) renderDebug();
+}
+
+// ============================================================
+// 15. 開局地區選擇與啟動
+// ============================================================
+$("#regGrid").addEventListener("click", e => {
+  const card = e.target.closest(".reg-card"); if (!card) return;
+  document.querySelectorAll(".reg-card").forEach(c => c.classList.remove("on"));
+  card.classList.add("on");
+  worldRegion = card.dataset.reg;
+});
+
+fit(); Z = Math.max(.55, Math.min(1.2, VW / 600)); addEventListener("resize", fit);
+let had = load();
+if (!had) {
+  introOpen = true;
+  $("#go").onclick = () => {
+    introOpen = false; $("#intro").style.display = "none";
+    fresh();
+    genChunk(...cOf(DOCK.x, DOCK.y));
+    calcConn(); updateActiveSet(); clampCam(); save();
+  };
+} else {
+  $("#intro").style.display = "none";
+  genChunk(...cOf(DOCK.x, DOCK.y));
+  calcConn(); evalTownStage(); updateActiveSet(); clampCam();
+}
+renderSub(); updBar();
+let last = 0;
+function loop(ts) {
+  const dt = Math.min(.1, (ts - last) / 1000 || 0); last = ts;
+  if (!paused && !introOpen) step(dt * speed);
+  draw(ts); requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+setInterval(hud, 250); setInterval(save, 5000);
+document.addEventListener("visibilitychange", () => { if (document.hidden) save(); }); addEventListener("pagehide", save);
+})();
+</script>
+</body>
+</html>
