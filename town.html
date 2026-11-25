@@ -2879,7 +2879,7 @@ $("#regGrid").addEventListener("click", e => {
 });
 $("#go").onclick = () => {
   chunks.forEach(c => { c.terrain = null; }); // 依開局地區重新生成地形
-  introOpen = false; $("#intro").style.display = "none"; pick(tool); save();
+  introOpen = false; $("#intro").style.display = "none"; save();
 };
 let last = 0;
 function loop(ts) {
