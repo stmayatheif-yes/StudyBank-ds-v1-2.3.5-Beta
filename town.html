@@ -1738,7 +1738,7 @@ function renderPedia() {
       };
       if (civicDesc[v.civic]) parts.push("市政效果：" + civicDesc[v.civic]);
     }
-    return '<div class="pedia-card"><b>' + v.n + '</b>
+    return '<div class="pedia-card"><b>' + v.n + '</b> [' + w + '×' + d + '] ' + v.c + ' 文<div class="pedia-sub">' + parts.join('<br>') + '</div></div>';
   }).join("");
   const empty = '<div class="pedia-sub">此分類目前沒有可列出的項目。</div>';
   $("#pediaBody").innerHTML = tabHtml + (cards || empty);
